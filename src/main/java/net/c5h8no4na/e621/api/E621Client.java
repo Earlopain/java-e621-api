@@ -3,15 +3,14 @@ package net.c5h8no4na.e621.api;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -30,8 +29,6 @@ import net.c5h8no4na.e621.api.response.Post;
 import net.c5h8no4na.e621.api.response.Tag;
 
 public class E621Client extends ApiClient<JsonElement> {
-
-	private String base = "https://e621.net";
 	private Gson gson;
 
 	private String username;
@@ -60,7 +57,7 @@ public class E621Client extends ApiClient<JsonElement> {
 	}
 
 	public ApiResponse<Post> getPost(Integer id) {
-		E621Request json = get(String.format("/posts/%d.json", id));
+		E621Request json = get(Endpoint.POSTS.getById(id));
 		return wrapIntoError(json, Post.class);
 	}
 
@@ -70,18 +67,19 @@ public class E621Client extends ApiClient<JsonElement> {
 
 	public ApiResponse<List<Post>> getPosts(List<Integer> ids) {
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
-		E621Request json = get(String.format("/posts.json?tags=id:%s", idString));
+		Map<String, String> queryParams = Map.of("tags", String.format("id:%s", idString));
+		E621Request json = get(Endpoint.POSTS.getWithParams(queryParams));
 		Type type = new TypeToken<ArrayList<Post>>() {}.getType();
 		return wrapIntoError(json, type);
 	}
 
 	public ApiResponse<Tag> getTagById(Integer id) {
-		E621Request json = get(String.format("/tags/%d.json", id));
+		E621Request json = get(Endpoint.TAGS.getById(id));
 		return wrapIntoError(json, Tag.class);
 	}
 
 	public ApiResponse<Tag> getTagByName(String tag) {
-		E621Request json = get(String.format("/tags/%s.json", tag));
+		E621Request json = get(Endpoint.TAGS.getByString(tag));
 		return wrapIntoError(json, Tag.class);
 	}
 
@@ -91,13 +89,14 @@ public class E621Client extends ApiClient<JsonElement> {
 
 	public ApiResponse<List<Tag>> getTagsByName(List<String> tags) {
 		String tagString = String.join(",", tags);
-		E621Request json = get(String.format("/tags.json?search[name]=%s", tagString));
+		Map<String, String> queryParams = Map.of("search[name]", tagString);
+		E621Request json = get(Endpoint.TAGS.getWithParams(queryParams));
 		Type type = new TypeToken<ArrayList<Tag>>() {}.getType();
 		return wrapIntoError(json, type);
 	}
 
-	public E621Request get(String endpoint) {
-		HttpRequest request = getBuilderBase().GET().uri(buildURI(endpoint)).build();
+	public E621Request get(URI url) {
+		HttpRequest request = getBuilderBase().GET().uri(url).build();
 		E621Request result = new E621Request();
 		try {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
@@ -126,10 +125,6 @@ public class E621Client extends ApiClient<JsonElement> {
 		}
 		b.header("User-Agent", useragent);
 		return b;
-	}
-
-	protected URI buildURI(String endpoint) {
-		return URI.create(String.format("%s/%s", base, endpoint));
 	}
 
 	private <T> ApiResponse<T> wrapIntoError(E621Request request, Type type) {
