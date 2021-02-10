@@ -69,11 +69,15 @@ public class E621Client extends ApiClient<JsonElement> {
 		E621Request result = new E621Request();
 		try {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-			result.setResponseCode(response.statusCode());
-			result.setData(gson.fromJson(response.body(), JsonElement.class));
-			if (!result.responseCodeOk()) {
-				result.setErrorType(ErrorType.INVALID_API_REQUEST);
+			Integer statusCode = response.statusCode();
+			result.setResponseCode(statusCode);
+			// Cloudflare error, not valid json and don't try to parse
+			if (statusCode >= 500 && statusCode < 600) {
+				result.setErrorType(ErrorType.SERVICE_UNAVAILABLE);
+			} else {
+				result.setData(gson.fromJson(response.body(), JsonElement.class));
 			}
+
 		} catch (IOException | InterruptedException e) {
 			result.setErrorType(ErrorType.NETWORK_REQUEST_FAILED);
 		} catch (JsonSyntaxException e) {
