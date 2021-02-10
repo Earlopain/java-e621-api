@@ -70,6 +70,9 @@ public class E621Client extends ApiClient<JsonElement> {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 			result.setResponseCode(response.statusCode());
 			result.setData(gson.fromJson(response.body(), JsonElement.class));
+			if (!result.responseCodeOk()) {
+				result.setErrorType(ErrorType.INVALID_API_REQUEST);
+			}
 		} catch (IOException | InterruptedException e) {
 			result.setErrorType(ErrorType.NETWORK_REQUEST_FAILED);
 		} catch (JsonSyntaxException e) {
@@ -98,6 +101,7 @@ public class E621Client extends ApiClient<JsonElement> {
 
 		if (!request.isSuccess()) {
 			result.setSuccess(false);
+			result.setErrorType(request.getErrorType());
 			result.setErrorMessage(request.getErrorMessage());
 			return result;
 		}
