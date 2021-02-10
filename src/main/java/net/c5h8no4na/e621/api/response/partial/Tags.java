@@ -6,12 +6,12 @@ import lombok.Data;
 
 @Data
 public class Tags {
-	public List<String> general;
-	public List<String> species;
-	public List<String> character;
-	public List<String> copyright;
-	public List<String> artist;
-	public List<String> invalid;
-	public List<String> lore;
-	public List<String> meta;
+	private List<String> general;
+	private List<String> species;
+	private List<String> character;
+	private List<String> copyright;
+	private List<String> artist;
+	private List<String> invalid;
+	private List<String> lore;
+	private List<String> meta;
 }
