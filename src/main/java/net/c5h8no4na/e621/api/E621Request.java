@@ -1,4 +1,4 @@
-package net.c5h8no4na.e621.api.response;
+package net.c5h8no4na.e621.api;
 
 import com.google.gson.JsonElement;
 

@@ -3,13 +3,16 @@ package net.c5h8no4na.e621.api;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.google.gson.FieldNamingPolicy;
@@ -23,9 +26,7 @@ import net.c5h8no4na.common.assertion.Assert;
 import net.c5h8no4na.common.network.ApiClient;
 import net.c5h8no4na.common.network.ApiResponse;
 import net.c5h8no4na.common.network.ErrorType;
-import net.c5h8no4na.e621.api.response.E621Request;
-import net.c5h8no4na.e621.api.response.MultiplePosts;
-import net.c5h8no4na.e621.api.response.SinglePost;
+import net.c5h8no4na.e621.api.response.Post;
 import net.c5h8no4na.e621.api.response.Tag;
 
 public class E621Client extends ApiClient<JsonElement> {
@@ -58,19 +59,20 @@ public class E621Client extends ApiClient<JsonElement> {
 		return new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 	}
 
-	public ApiResponse<SinglePost> getPost(Integer id) {
+	public ApiResponse<Post> getPost(Integer id) {
 		E621Request json = get(String.format("/posts/%d.json", id));
-		return wrapIntoError(json, SinglePost.class);
+		return wrapIntoError(json, Post.class);
 	}
 
-	public ApiResponse<MultiplePosts> getPosts(Integer... ids) {
+	public ApiResponse<List<Post>> getPosts(Integer... ids) {
 		return getPosts(Arrays.asList(ids));
 	}
 
-	public ApiResponse<MultiplePosts> getPosts(List<Integer> ids) {
+	public ApiResponse<List<Post>> getPosts(List<Integer> ids) {
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
 		E621Request json = get(String.format("/posts.json?tags=id:%s", idString));
-		return wrapIntoError(json, MultiplePosts.class);
+		Type type = new TypeToken<ArrayList<Post>>() {}.getType();
+		return wrapIntoError(json, type);
 	}
 
 	public ApiResponse<Tag> getTagById(Integer id) {
@@ -131,6 +133,18 @@ public class E621Client extends ApiClient<JsonElement> {
 	}
 
 	private <T> ApiResponse<T> wrapIntoError(E621Request request, Type type) {
+		JsonElement json = gson.fromJson(request.getData(), JsonElement.class);
+		if (json.isJsonObject() && json.getAsJsonObject().entrySet().size() == 1) {
+			Entry<String, JsonElement> a = json.getAsJsonObject().entrySet().iterator().next();
+			T value = gson.fromJson(a.getValue(), type);
+			return wrapIntoError(request, value);
+		} else {
+			T value = gson.fromJson(request.getData(), type);
+			return wrapIntoError(request, value);
+		}
+	}
+
+	private <T> ApiResponse<T> wrapIntoError(E621Request request, T value) {
 		ApiResponse<T> result = new ApiResponse<>();
 		result.setResponseCode(request.getResponseCode());
 
@@ -140,9 +154,8 @@ public class E621Client extends ApiClient<JsonElement> {
 			result.setErrorMessage(request.getErrorMessage());
 			return result;
 		} else {
-			JsonElement json = request.getData();
 			result.setSuccess(true);
-			result.setResponse(gson.fromJson(json, type));
+			result.setResponse(value);
 			return result;
 		}
 	}
