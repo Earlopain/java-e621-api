@@ -6,23 +6,28 @@ import lombok.ToString;
 
 @ToString
 public class ApiResponse<T> {
-    private ApiError error = new ApiError();
+    private Boolean success;
+    private String errorMessage;
     private T response;
 
-    public void setError(ApiError error) {
-	this.error = error;
+    public Boolean isError() {
+	return !success;
+    }
+
+    public void setSuccess(Boolean success) {
+	this.success = success;
+    }
+
+    public String getErrorMessage() {
+	return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+	this.errorMessage = errorMessage;
     }
 
     public void setResponse(T response) {
 	this.response = response;
-    }
-
-    public Boolean isError() {
-	return !error.getSuccess();
-    }
-
-    public String getErrorMessage() {
-	return error.getReason();
     }
 
     public T unwrap() {
