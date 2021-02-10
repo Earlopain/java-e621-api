@@ -15,9 +15,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 
 import net.c5h8no4na.common.assertion.Assert;
-import net.c5h8no4na.e621.api.response.ApiResponse;
+import net.c5h8no4na.common.network.ApiClient;
+import net.c5h8no4na.common.network.ApiResponse;
+import net.c5h8no4na.common.network.ErrorType;
 import net.c5h8no4na.e621.api.response.E621Request;
-import net.c5h8no4na.e621.api.response.ErrorType;
 import net.c5h8no4na.e621.api.response.MultiplePosts;
 import net.c5h8no4na.e621.api.response.SinglePost;
 

@@ -3,6 +3,7 @@ package net.c5h8no4na.e621.api.response;
 import com.google.gson.JsonElement;
 
 import net.c5h8no4na.common.assertion.Assert;
+import net.c5h8no4na.common.network.NetworkRequest;
 
 public class E621Request extends NetworkRequest<JsonElement> {
 	public String getErrorMessage() {
