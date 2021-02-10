@@ -1,15 +1,15 @@
 package net.c5h8no4na.e621.api.response;
 
-import java.util.Objects;
-
 import com.google.gson.JsonElement;
+
+import net.c5h8no4na.common.assertion.Assert;
 
 public class E621Request extends NetworkRequest<JsonElement> {
 	public String getErrorMessage() {
+		Assert.isFalse(isSuccess(), "only get errormessage if request not successfull");
 		if (errorType != null) {
 			return errorType.toString();
 		}
-		Objects.requireNonNull(data, "only get errormessage if request not successfull");
 		return data.getAsJsonObject().getAsJsonPrimitive("reason").getAsString();
 	}
 

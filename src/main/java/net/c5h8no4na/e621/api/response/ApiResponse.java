@@ -1,6 +1,6 @@
 package net.c5h8no4na.e621.api.response;
 
-import java.util.Objects;
+import net.c5h8no4na.common.assertion.Assert;
 
 import lombok.ToString;
 
@@ -40,7 +40,7 @@ public class ApiResponse<T> {
 	}
 
 	public T unwrap() {
-		Objects.requireNonNull(response, "response was null, check error before unwrapping");
+		Assert.notNull(response, "response was null, check error before unwrapping");
 		return response;
 	}
 }

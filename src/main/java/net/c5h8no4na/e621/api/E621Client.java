@@ -8,13 +8,13 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 
+import net.c5h8no4na.common.assertion.Assert;
 import net.c5h8no4na.e621.api.response.ApiResponse;
 import net.c5h8no4na.e621.api.response.E621Request;
 import net.c5h8no4na.e621.api.response.ErrorType;
@@ -79,7 +79,7 @@ public class E621Client extends ApiClient<JsonElement> {
 	}
 
 	protected Builder getBuilderBase() {
-		Objects.requireNonNull(useragent, "useragent must be set");
+		Assert.notNull(useragent, "useragent must be set");
 		Builder b = HttpRequest.newBuilder();
 		if (apiKey != null && useragent != null) {
 			b.header("Authorization", basicAuth(username, apiKey));

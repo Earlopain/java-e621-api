@@ -1,8 +1,7 @@
 package net.c5h8no4na.e621.api.response;
 
-import java.util.Objects;
-
 import lombok.Data;
+import net.c5h8no4na.common.assertion.Assert;
 
 @Data
 public abstract class NetworkRequest<T> {
@@ -11,8 +10,12 @@ public abstract class NetworkRequest<T> {
 	protected ErrorType errorType;
 
 	public T getData() {
-		Objects.requireNonNull(data, "check for error first");
+		Assert.notNull(data, "check for error first");
 		return data;
+	}
+
+	public Boolean responseCodeOk() {
+		return responseCode >= 200 && responseCode < 300;
 	}
 
 	public abstract Boolean isSuccess();
