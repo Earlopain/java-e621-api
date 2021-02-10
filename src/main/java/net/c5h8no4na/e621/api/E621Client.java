@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.Builder;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
@@ -16,6 +16,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 
 import net.c5h8no4na.e621.api.response.ApiResponse;
+import net.c5h8no4na.e621.api.response.E621Request;
+import net.c5h8no4na.e621.api.response.ErrorType;
 import net.c5h8no4na.e621.api.response.MultiplePosts;
 import net.c5h8no4na.e621.api.response.SinglePost;
 
@@ -46,7 +48,7 @@ public class E621Client extends ApiClient<JsonElement> {
     }
 
     public ApiResponse<SinglePost> getPost(Integer id) {
-	Optional<JsonElement> json = get(String.format("/posts/%d.json", id));
+	E621Request json = get(String.format("/posts/%d.json", id));
 	return wrapIntoError(json, SinglePost.class);
     }
 
@@ -57,25 +59,23 @@ public class E621Client extends ApiClient<JsonElement> {
     public ApiResponse<MultiplePosts> getPosts(List<Integer> ids) {
 	// https://e621.net/posts.json?tags=id:1,2,3,4,5,100,101
 	String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
-	Optional<JsonElement> json = get(String.format("/posts.json?tags=id:%s", idString));
+	E621Request json = get(String.format("/posts.json?tags=id:%s", idString));
 	return wrapIntoError(json, MultiplePosts.class);
     }
 
-    public Optional<JsonElement> get(String endpoint) {
+    public E621Request get(String endpoint) {
 	HttpRequest request = getBuilderBase().GET().uri(buildURI(endpoint)).build();
-	String json;
+	E621Request result = new E621Request();
 	try {
-	    json = client.send(request, BodyHandlers.ofString()).body();
-	    // TODO handle cloudflare error
-	    return Optional.of(gson.fromJson(json, JsonElement.class));
+	    HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+	    result.setResponseCode(response.statusCode());
+	    result.setData(gson.fromJson(response.body(), JsonElement.class));
 	} catch (IOException | InterruptedException e) {
-	    e.printStackTrace();
-	    return Optional.empty();
+	    result.setErrorType(ErrorType.NETWORK_REQUEST_FAILED);
 	} catch (JsonSyntaxException e) {
-	    e.printStackTrace();
-	    // TODO return rich error type
-	    return Optional.empty();
+	    result.setErrorType(ErrorType.INVALID_JSON);
 	}
+	return result;
     }
 
     protected Builder getBuilderBase() {
@@ -92,28 +92,19 @@ public class E621Client extends ApiClient<JsonElement> {
 	return URI.create(String.format("%s/%s", base, endpoint));
     }
 
-    private <T> ApiResponse<T> wrapIntoError(Optional<JsonElement> optionalJson, Class<T> clazz) {
+    private <T> ApiResponse<T> wrapIntoError(E621Request request, Class<T> clazz) {
 	ApiResponse<T> result = new ApiResponse<>();
-
+	result.setResponseCode(request.getResponseCode());
 	// Network error
-	if (optionalJson.isEmpty()) {
+	if (!request.isSuccess()) {
 	    result.setSuccess(false);
-	    result.setErrorMessage("Network error");
+	    result.setErrorMessage(request.getErrorMessage());
 	    return result;
 	}
-
-	JsonElement json = optionalJson.get();
-
-	// success field is only present on errors
-	if (json.getAsJsonObject().getAsJsonPrimitive("success") != null) {
-	    result.setSuccess(false);
-	    result.setErrorMessage(json.getAsJsonObject().getAsJsonPrimitive("reason").getAsString());
-	    return result;
-	} else {
-	    result.setSuccess(true);
-	    result.setErrorMessage("");
-	    result.setResponse(gson.fromJson(json, clazz));
-	}
+	JsonElement json = request.getData();
+	result.setSuccess(true);
+	result.setErrorMessage("");
+	result.setResponse(gson.fromJson(json, clazz));
 	return result;
     }
 

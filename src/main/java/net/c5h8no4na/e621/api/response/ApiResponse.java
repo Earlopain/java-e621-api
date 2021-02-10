@@ -8,10 +8,11 @@ import lombok.ToString;
 public class ApiResponse<T> {
     private Boolean success;
     private String errorMessage;
+    private Integer responseCode;
     private T response;
 
-    public Boolean isError() {
-	return !success;
+    public Boolean isSuccess() {
+	return success;
     }
 
     public void setSuccess(Boolean success) {
@@ -24,6 +25,14 @@ public class ApiResponse<T> {
 
     public void setErrorMessage(String errorMessage) {
 	this.errorMessage = errorMessage;
+    }
+
+    public Integer getResponseCode() {
+	return responseCode;
+    }
+
+    public void setResponseCode(Integer responseCode) {
+	this.responseCode = responseCode;
     }
 
     public void setResponse(T response) {
