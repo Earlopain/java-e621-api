@@ -18,7 +18,10 @@ public class E621Request extends NetworkRequest<JsonElement> {
 	public Boolean isSuccess() {
 		if (data == null || !responseCodeOk()) {
 			return false;
+		} else if (data.isJsonObject()) {
+			return data.getAsJsonObject().getAsJsonPrimitive("success") == null;
+		} else {
+			return true;
 		}
-		return data.getAsJsonObject().getAsJsonPrimitive("success") == null;
 	}
 }
