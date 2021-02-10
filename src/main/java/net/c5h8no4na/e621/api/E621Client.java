@@ -62,10 +62,19 @@ public class E621Client extends ApiClient<JsonElement> {
 	}
 
 	public ApiResponse<MultiplePosts> getPosts(List<Integer> ids) {
-		// https://e621.net/posts.json?tags=id:1,2,3,4,5,100,101
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
 		E621Request json = get(String.format("/posts.json?tags=id:%s", idString));
 		return wrapIntoError(json, MultiplePosts.class);
+	}
+
+	public ApiResponse<Tag> getTagById(Integer id) {
+		E621Request json = get(String.format("/tags/%d.json", id));
+		return wrapIntoError(json, Tag.class);
+	}
+
+	public ApiResponse<Tag> getTagByName(String tag) {
+		E621Request json = get(String.format("/tags/%s.json", tag));
+		return wrapIntoError(json, Tag.class);
 	}
 
 	public ApiResponse<List<Tag>> getTagsByName(String... tags) {
