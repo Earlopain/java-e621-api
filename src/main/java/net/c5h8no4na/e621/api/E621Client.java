@@ -12,7 +12,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
@@ -37,12 +39,12 @@ public class E621Client extends ApiClient<JsonElement> {
 
 	public E621Client() {
 		super();
-		gson = new Gson();
+		gson = getGsonInstance();
 	}
 
 	public E621Client(String username, String apiKey, String useragent) {
 		super();
-		gson = new Gson();
+		gson = getGsonInstance();
 		authenticate(username, apiKey, useragent);
 	}
 
@@ -50,6 +52,10 @@ public class E621Client extends ApiClient<JsonElement> {
 		this.username = username;
 		this.apiKey = apiKey;
 		this.useragent = useragent;
+	}
+
+	private Gson getGsonInstance() {
+		return new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 	}
 
 	public ApiResponse<SinglePost> getPost(Integer id) {

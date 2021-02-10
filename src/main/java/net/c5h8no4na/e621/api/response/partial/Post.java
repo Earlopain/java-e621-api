@@ -8,21 +8,21 @@ import lombok.Data;
 @Data
 public class Post {
 	private Integer id;
-	private Date created_at;
-	private Date updated_at;
+	private Date createdAt;
+	private Date updatedAt;
 	private File file;
 	private Score score;
 	private Tags tags;
 	private String rating;
-	private Integer fav_count;
+	private Integer favCount;
 	private List<String> sources;
 	private List<Integer> pools;
 	private Relationships relationships;
-	private Integer approver_id;
-	private Integer uploader_id;
+	private Integer approverId;
+	private Integer uploaderId;
 	private String description;
-	private Integer comment_count;
-	private Boolean is_favorited;
-	private Boolean has_notes;
+	private Integer commentCount;
+	private Boolean isFavorited;
+	private Boolean hasNotes;
 	private Float duration;
 }

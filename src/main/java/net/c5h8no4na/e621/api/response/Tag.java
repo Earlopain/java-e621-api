@@ -8,11 +8,11 @@ import lombok.Data;
 public class Tag {
 	private Integer id;
 	private String name;
-	private Integer post_count;
-	private String related_tags;
-	private Date related_tags_updated_at;
+	private Integer postCount;
+	private String relatedTags;
+	private Date relatedTagsUpdatedAt;
 	private Integer category;
-	private Boolean is_locked;
-	private Date created_at;
-	private Date updated_at;
+	private Boolean isLocked;
+	private Date createdAt;
+	private Date updatedAt;
 }
