@@ -6,6 +6,6 @@ import lombok.Data;
 
 @Data
 public class Relationships {
-    public Integer parent_id;
-    public List<Integer> children;
+	public Integer parent_id;
+	public List<Integer> children;
 }

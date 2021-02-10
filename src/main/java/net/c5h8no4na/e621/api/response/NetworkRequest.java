@@ -6,16 +6,16 @@ import lombok.Data;
 
 @Data
 public abstract class NetworkRequest<T> {
-    protected T data;
-    protected Integer responseCode;
-    protected ErrorType errorType;
+	protected T data;
+	protected Integer responseCode;
+	protected ErrorType errorType;
 
-    public T getData() {
-	Objects.requireNonNull(data, "check for error first");
-	return data;
-    }
+	public T getData() {
+		Objects.requireNonNull(data, "check for error first");
+		return data;
+	}
 
-    public abstract Boolean isSuccess();
+	public abstract Boolean isSuccess();
 
-    public abstract String getErrorMessage();
+	public abstract String getErrorMessage();
 }

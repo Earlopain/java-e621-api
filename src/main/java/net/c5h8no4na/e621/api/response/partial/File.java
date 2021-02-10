@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class File {
-    private Integer width;
-    private Integer height;
-    private String ext;
-    private Integer size;
-    private String md5;
+	private Integer width;
+	private Integer height;
+	private String ext;
+	private Integer size;
+	private String md5;
 }

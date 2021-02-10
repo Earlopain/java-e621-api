@@ -7,5 +7,5 @@ import net.c5h8no4na.e621.api.response.partial.Post;
 
 @Data
 public class MultiplePosts {
-    List<Post> posts;
+	List<Post> posts;
 }

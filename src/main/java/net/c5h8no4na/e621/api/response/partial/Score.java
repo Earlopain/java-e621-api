@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Score {
-    public Integer up;
-    public Integer down;
-    public Integer total;
+	public Integer up;
+	public Integer down;
+	public Integer total;
 }
