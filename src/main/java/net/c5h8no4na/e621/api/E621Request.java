@@ -14,7 +14,7 @@ import net.c5h8no4na.common.assertion.Assert;
 import net.c5h8no4na.common.network.ErrorType;
 import net.c5h8no4na.common.network.NetworkRequest;
 
-public class E621Request extends NetworkRequest<JsonElement> {
+public class E621Request<T> extends NetworkRequest<JsonElement> {
 
 	private static Gson gson;
 
@@ -55,7 +55,19 @@ public class E621Request extends NetworkRequest<JsonElement> {
 		}
 	}
 
-	public static E621Request create(HttpResponse<String> response) {
+	E621Response<T> wrapIntoError(Type type) {
+		JsonElement json = gson.fromJson(data, JsonElement.class);
+		if (json.isJsonObject() && json.getAsJsonObject().entrySet().size() == 1) {
+			Entry<String, JsonElement> a = json.getAsJsonObject().entrySet().iterator().next();
+			T value = gson.fromJson(a.getValue(), type);
+			return E621Response.fromValue(this, value);
+		} else {
+			T value = gson.fromJson(data, type);
+			return E621Response.fromValue(this, value);
+		}
+	}
+
+	public static <T> E621Request<T> create(HttpResponse<String> response) {
 		Integer responseCode = response.statusCode();
 		// Cloudflare error, not valid json and don't try to parse
 		if (responseCode >= 500 && responseCode < 600) {
@@ -69,35 +81,23 @@ public class E621Request extends NetworkRequest<JsonElement> {
 		}
 	}
 
-	public static E621Request create(ErrorType type) {
-		E621Request result = new E621Request();
+	public static <T> E621Request<T> create(ErrorType type) {
+		E621Request<T> result = new E621Request<>();
 		result.setErrorType(type);
 		return result;
 	}
 
-	private static E621Request create(ErrorType type, Integer responseCode) {
-		E621Request result = new E621Request();
+	private static <T> E621Request<T> create(ErrorType type, Integer responseCode) {
+		E621Request<T> result = new E621Request<>();
 		result.setErrorType(type);
 		result.setResponseCode(responseCode);
 		return result;
 	}
 
-	private static E621Request create(String json, Integer responseCode) throws JsonSyntaxException {
-		E621Request result = new E621Request();
+	private static <T> E621Request<T> create(String json, Integer responseCode) throws JsonSyntaxException {
+		E621Request<T> result = new E621Request<>();
 		result.setResponseCode(responseCode);
 		result.setData(gson.fromJson(json, JsonElement.class));
 		return result;
-	}
-
-	<T> E621Response<T> wrapIntoError(Type type) {
-		JsonElement json = gson.fromJson(data, JsonElement.class);
-		if (json.isJsonObject() && json.getAsJsonObject().entrySet().size() == 1) {
-			Entry<String, JsonElement> a = json.getAsJsonObject().entrySet().iterator().next();
-			T value = gson.fromJson(a.getValue(), type);
-			return E621Response.fromValue(this, value);
-		} else {
-			T value = gson.fromJson(data, type);
-			return E621Response.fromValue(this, value);
-		}
 	}
 }

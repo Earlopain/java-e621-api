@@ -58,7 +58,7 @@ public class E621Client extends ApiClient<JsonElement> {
 	}
 
 	public E621Response<Post> getPost(Integer id) {
-		E621Request json = get(Endpoint.POSTS.getById(id));
+		E621Request<Post> json = get(Endpoint.POSTS.getById(id));
 		return json.wrapIntoError(Post.class);
 	}
 
@@ -69,30 +69,19 @@ public class E621Client extends ApiClient<JsonElement> {
 	public E621Response<List<Post>> getPosts(List<Integer> ids) {
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
 		Map<String, String> queryParams = Map.of("tags", String.format("id:%s", idString));
-		E621Request json = get(Endpoint.POSTS.getWithParams(queryParams));
+		E621Request<List<Post>> json = get(Endpoint.POSTS.getWithParams(queryParams));
 		Type type = new TypeToken<ArrayList<Post>>() {}.getType();
 		return json.wrapIntoError(type);
 	}
 
 	public E621Response<Tag> getTagById(Integer id) {
-		E621Request json = get(Endpoint.TAGS.getById(id));
+		E621Request<Tag> json = get(Endpoint.TAGS.getById(id));
 		return json.wrapIntoError(Tag.class);
 	}
 
 	public E621Response<Tag> getTagByName(String tag) {
 		E621Response<List<Tag>> json = getTagsByName(tag);
-		if (json.getSuccess()) {
-			List<Tag> tags = json.unwrap();
-			Assert.isTrue(tags.size() <= 1, "There should be at max 1 tag returned here");
-			// tag not found
-			if (tags.size() == 0) {
-				return E621Response.createNotFoundError();
-			} else {
-				return E621Response.createSuccess(tags.get(0), json.getResponseCode());
-			}
-		} else {
-			return json.reinterpretCast();
-		}
+		return json.extractOneFromList();
 	}
 
 	public E621Response<List<Tag>> getTagsByName(String... tags) {
@@ -102,13 +91,13 @@ public class E621Client extends ApiClient<JsonElement> {
 	public E621Response<List<Tag>> getTagsByName(List<String> tags) {
 		String tagString = String.join(",", tags);
 		Map<String, String> queryParams = Map.of("search[name]", tagString, "search[hide_empty]", "no");
-		E621Request json = get(Endpoint.TAGS.getWithParams(queryParams));
+		E621Request<List<Tag>> json = get(Endpoint.TAGS.getWithParams(queryParams));
 		Type type = new TypeToken<ArrayList<Tag>>() {}.getType();
 		return json.wrapIntoError(type);
 	}
 
 	public E621Response<FullUser> getUserById(Integer id) {
-		E621Request json = get(Endpoint.USERS.getById(id));
+		E621Request<FullUser> json = get(Endpoint.USERS.getById(id));
 		return json.wrapIntoError(FullUser.class);
 	}
 
@@ -118,29 +107,27 @@ public class E621Client extends ApiClient<JsonElement> {
 			// Name is numeric getting it would tread it as id
 			// Get the id from the name
 			Map<String, String> queryParams = Map.of("search[name_matches]", name);
-			E621Request jsonByName = get(Endpoint.USERS.getWithParams(queryParams));
+			E621Request<List<User>> jsonByName = get(Endpoint.USERS.getWithParams(queryParams));
 			Type type = new TypeToken<ArrayList<User>>() {}.getType();
 			E621Response<List<User>> response = jsonByName.wrapIntoError(type);
-			// If the first request fails we don't need to check further
-			if (!jsonByName.isSuccess()) {
-				return response.reinterpretCast();
-			} else {
-				List<User> users = response.unwrap();
-				// No user with this name
-				if (users.size() == 0) {
-					return E621Response.createNotFoundError();
+			if (response.getSuccess()) {
+				E621Response<User> user = response.extractOneFromList();
+				if (user.getSuccess()) {
+					return getUserById(user.unwrap().getId());
 				} else {
-					return getUserById(users.get(0).getId());
+					return response.reinterpretCast();
 				}
-
+			} else {
+				return response.reinterpretCast();
 			}
+
 		} catch (Exception e) {
-			E621Request json = get(Endpoint.USERS.getByString(name));
+			E621Request<FullUser> json = get(Endpoint.USERS.getByString(name));
 			return json.wrapIntoError(FullUser.class);
 		}
 	}
 
-	public E621Request get(String url) {
+	public <T> E621Request<T> get(String url) {
 		HttpRequest request = getBuilderBase().GET().uri(URI.create(base + url)).build();
 		try {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
