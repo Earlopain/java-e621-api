@@ -30,12 +30,17 @@ public enum Endpoint {
 	}
 
 	public URI getWithParams(Map<String, String> queryParams) {
-		List<String> queryParts = queryParams.entrySet().stream().map(entry -> {
-			String sanitized = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
-			return String.format("%s=%s", entry.getKey(), sanitized);
-		}).collect(Collectors.toList());
-		String url = String.format(base + "/%s.json?%s", endpointString(), String.join("&", queryParts));
-		return URI.create(url);
+		if (queryParams.size() == 0) {
+			String url = String.format(base + "/%s.json", endpointString());
+			return URI.create(url);
+		} else {
+			List<String> queryParts = queryParams.entrySet().stream().map(entry -> {
+				String sanitized = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
+				return String.format("%s=%s", entry.getKey(), sanitized);
+			}).collect(Collectors.toList());
+			String url = String.format(base + "/%s.json?%s", endpointString(), String.join("&", queryParts));
+			return URI.create(url);
+		}
 	}
 
 	private String endpointString() {
