@@ -73,8 +73,19 @@ public class E621Client extends ApiClient<JsonElement> {
 	}
 
 	public E621Response<Tag> getTagByName(String tag) {
-		E621Request json = get(Endpoint.TAGS.getByString(tag));
-		return json.wrapIntoError(Tag.class);
+		E621Response<List<Tag>> json = getTagsByName(tag);
+		if (json.getSuccess()) {
+			List<Tag> tags = json.unwrap();
+			Assert.isTrue(tags.size() <= 1, "There should be at max 1 tag returned here");
+			// tag not found
+			if (tags.size() == 0) {
+				return E621Response.createNotFoundError();
+			} else {
+				return E621Response.createSuccess(tags.get(0), json.getResponseCode());
+			}
+		} else {
+			return json.reinterpretCast();
+		}
 	}
 
 	public E621Response<List<Tag>> getTagsByName(String... tags) {

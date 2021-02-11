@@ -95,13 +95,20 @@ public class E621ClientTest {
 	void testGetTagByName() {
 		ApiResponse<Tag> dragon = client.getTagByName("dragon");
 		ApiResponse<Tag> pokemon = client.getTagByName("pokémon");
+		ApiResponse<Tag> integerTag = client.getTagByName("123");
 		ApiResponse<Tag> nonExists = client.getTagByName("wgmwpood");
+		ApiResponse<Tag> notExistsIntegerTag = client.getTagByName("12398252");
+
 		assertSuccessfulResponse(dragon);
 		assertSuccessfulResponse(pokemon);
+		assertSuccessfulResponse(integerTag);
 		assertErrorResponse(nonExists);
+		assertErrorResponse(notExistsIntegerTag);
 
 		Assertions.assertEquals(dragon.unwrap().getId(), 1);
 		Assertions.assertEquals(pokemon.unwrap().getId(), 16913);
+		Assertions.assertEquals(integerTag.unwrap().getId(), 181869);
+		Assertions.assertEquals(integerTag.unwrap().getName(), "123");
 	}
 
 	@Test
