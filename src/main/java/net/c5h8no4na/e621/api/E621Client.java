@@ -27,8 +27,10 @@ import net.c5h8no4na.common.assertion.Assert;
 import net.c5h8no4na.common.network.ApiClient;
 import net.c5h8no4na.common.network.ApiResponse;
 import net.c5h8no4na.common.network.ErrorType;
+import net.c5h8no4na.e621.api.response.FullUser;
 import net.c5h8no4na.e621.api.response.Post;
 import net.c5h8no4na.e621.api.response.Tag;
+import net.c5h8no4na.e621.api.response.User;
 
 public class E621Client extends ApiClient<JsonElement> {
 	private Gson gson;
@@ -100,6 +102,39 @@ public class E621Client extends ApiClient<JsonElement> {
 		return wrapIntoError(json, type);
 	}
 
+	public ApiResponse<FullUser> getUserById(Integer id) {
+		E621Request json = get(Endpoint.USERS.getById(id));
+		return wrapIntoError(json, FullUser.class);
+	}
+
+	public ApiResponse<FullUser> getUserByName(String name) {
+		try {
+			Integer.parseInt(name);
+			// Name is numeric getting it would tread it as id
+			// Get the id from the name
+			Map<String, String> queryParams = Map.of("search[name_matches]", name);
+			E621Request jsonByName = get(Endpoint.USERS.getWithParams(queryParams));
+			Type type = new TypeToken<ArrayList<User>>() {}.getType();
+			ApiResponse<List<User>> response = wrapIntoError(jsonByName, type);
+			// If the first request fails we don't need to check further
+			if (!jsonByName.isSuccess()) {
+				return reinterpretCast(response);
+			} else {
+				List<User> users = response.unwrap();
+				// No user with this name
+				if (users.size() == 0) {
+					return createNotFoundError();
+				} else {
+					return getUserById(users.get(0).getId());
+				}
+
+			}
+		} catch (Exception e) {
+			E621Request json = get(Endpoint.USERS.getByString(name));
+			return wrapIntoError(json, FullUser.class);
+		}
+	}
+
 	public E621Request get(URI url) {
 		HttpRequest request = getBuilderBase().GET().uri(url).build();
 		E621Request result = new E621Request();
@@ -158,5 +193,18 @@ public class E621Client extends ApiClient<JsonElement> {
 			result.setResponse(value);
 			return result;
 		}
+	}
+
+	private <T> ApiResponse<T> createNotFoundError() {
+		ApiResponse<T> result = new ApiResponse<>();
+		result.setSuccess(false);
+		result.setErrorMessage("not found");
+		return result;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private <T> ApiResponse<T> reinterpretCast(ApiResponse t) {
+		Assert.isFalse(t.getSuccess());
+		return t;
 	}
 }

@@ -10,7 +10,8 @@ import java.util.stream.Collectors;
 
 public enum Endpoint {
 	TAGS,
-	POSTS;
+	POSTS,
+	USERS;
 
 	private static final String base = "https://e621.net";
 

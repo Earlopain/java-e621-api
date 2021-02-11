@@ -95,6 +95,33 @@ public class E621ClientTest {
 
 		Assertions.assertEquals(dragon.unwrap().getId(), 1);
 		Assertions.assertEquals(pokemon.unwrap().getId(), 16913);
+	@Test
+	void testGetUserById() {
+		ApiResponse<FullUser> existingUser = client.getUserById(194340);
+		ApiResponse<FullUser> notExists = client.getUserById(0);
+		assertSuccessfulResponse(existingUser);
+		assertErrorResponse(notExists);
+		FullUser earlopain = existingUser.unwrap();
+		Assertions.assertEquals(earlopain.getName(), "Earlopain");
+		Assertions.assertEquals(earlopain.getId(), 194340);
+
+	}
+
+	@Test
+	void testGetUserByName() {
+		ApiResponse<FullUser> existingUser = client.getUserByName("earlopain");
+		ApiResponse<FullUser> userWithIntegerName = client.getUserByName("123");
+		ApiResponse<FullUser> nonExistingUser = client.getUserByName("jfowjfofwf");
+		ApiResponse<FullUser> nonExistingUserWithIntegers = client.getUserByName("80895019751");
+		assertSuccessfulResponse(existingUser, userWithIntegerName);
+		assertErrorResponse(nonExistingUser, nonExistingUserWithIntegers);
+
+		FullUser earlopain = existingUser.unwrap();
+		FullUser integerUser = userWithIntegerName.unwrap();
+
+		Assertions.assertEquals(earlopain.getId(), 194340);
+		Assertions.assertEquals(integerUser.getId(), 3288);
+		Assertions.assertEquals(integerUser.getName(), "123");
 	}
 
 	@SuppressWarnings("rawtypes")
