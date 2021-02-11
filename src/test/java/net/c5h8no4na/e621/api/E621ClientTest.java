@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import net.c5h8no4na.common.network.ApiResponse;
+import net.c5h8no4na.e621.api.response.FullUser;
 import net.c5h8no4na.e621.api.response.Post;
 import net.c5h8no4na.e621.api.response.Tag;
 
@@ -47,7 +48,9 @@ public class E621ClientTest {
 		ApiResponse<List<Post>> response1 = client.getPosts();
 		ApiResponse<List<Post>> response2 = client.getPosts(-1, 1, 100);
 		ApiResponse<List<Post>> response3 = client.getPosts(1, 2, 5, 100, 500, 700, 1000, 5000, 7500, 10000);
-		assertSuccessfulResponse(response1, response2, response3);
+		assertSuccessfulResponse(response1);
+		assertSuccessfulResponse(response2);
+		assertSuccessfulResponse(response3);
 
 		// Test empty list
 		Assertions.assertEquals(response1.unwrap().size(), 0);
@@ -64,7 +67,8 @@ public class E621ClientTest {
 		ApiResponse<Tag> notExists2 = client.getTagById(-1);
 
 		assertSuccessfulResponse(dragon);
-		assertErrorResponse(notExists1, notExists2);
+		assertErrorResponse(notExists1);
+		assertErrorResponse(notExists2);
 
 		Tag tag = dragon.unwrap();
 
@@ -78,7 +82,9 @@ public class E621ClientTest {
 		ApiResponse<List<Tag>> response1 = client.getTagsByName();
 		ApiResponse<List<Tag>> response2 = client.getTagsByName("ghhehehe", "adas", "male");
 		ApiResponse<List<Tag>> response3 = client.getTagsByName("male", "female", "dragon", "pokémon");
-		assertSuccessfulResponse(response1, response2, response3);
+		assertSuccessfulResponse(response1);
+		assertSuccessfulResponse(response2);
+		assertSuccessfulResponse(response3);
 		// If not names are passed api returns the last 75
 		Assertions.assertEquals(response1.unwrap().size(), 75);
 		Assertions.assertEquals(response2.unwrap().size(), 1);
@@ -90,11 +96,14 @@ public class E621ClientTest {
 		ApiResponse<Tag> dragon = client.getTagByName("dragon");
 		ApiResponse<Tag> pokemon = client.getTagByName("pokémon");
 		ApiResponse<Tag> nonExists = client.getTagByName("wgmwpood");
-		assertSuccessfulResponse(dragon, pokemon);
+		assertSuccessfulResponse(dragon);
+		assertSuccessfulResponse(pokemon);
 		assertErrorResponse(nonExists);
 
 		Assertions.assertEquals(dragon.unwrap().getId(), 1);
 		Assertions.assertEquals(pokemon.unwrap().getId(), 16913);
+	}
+
 	@Test
 	void testGetUserById() {
 		ApiResponse<FullUser> existingUser = client.getUserById(194340);
@@ -113,8 +122,11 @@ public class E621ClientTest {
 		ApiResponse<FullUser> userWithIntegerName = client.getUserByName("123");
 		ApiResponse<FullUser> nonExistingUser = client.getUserByName("jfowjfofwf");
 		ApiResponse<FullUser> nonExistingUserWithIntegers = client.getUserByName("80895019751");
-		assertSuccessfulResponse(existingUser, userWithIntegerName);
-		assertErrorResponse(nonExistingUser, nonExistingUserWithIntegers);
+
+		assertSuccessfulResponse(existingUser);
+		assertSuccessfulResponse(userWithIntegerName);
+		assertErrorResponse(nonExistingUser);
+		assertErrorResponse(nonExistingUserWithIntegers);
 
 		FullUser earlopain = existingUser.unwrap();
 		FullUser integerUser = userWithIntegerName.unwrap();
@@ -125,23 +137,19 @@ public class E621ClientTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void assertSuccessfulResponse(ApiResponse... responses) {
-		for (ApiResponse r : responses) {
-			Assertions.assertTrue(r.getSuccess());
-			Assertions.assertNull(r.getErrorType());
-			Assertions.assertNull(r.getErrorMessage());
-			Assertions.assertTrue(r.getResponseCode() >= 200 && r.getResponseCode() < 300);
-			Assertions.assertDoesNotThrow(() -> r.unwrap());
-		}
+	private void assertSuccessfulResponse(ApiResponse r) {
+		Assertions.assertTrue(r.getSuccess());
+		Assertions.assertNull(r.getErrorType());
+		Assertions.assertNull(r.getErrorMessage());
+		Assertions.assertTrue(r.getResponseCode() >= 200 && r.getResponseCode() < 300);
+		Assertions.assertDoesNotThrow(() -> r.unwrap());
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void assertErrorResponse(ApiResponse... responses) {
-		for (ApiResponse r : responses) {
-			Assertions.assertFalse(r.getSuccess());
-			Assertions.assertNull(r.getErrorType());
-			Assertions.assertNotNull(r.getErrorMessage());
-			Assertions.assertThrows(AssertionError.class, () -> r.unwrap());
-		}
+	private void assertErrorResponse(ApiResponse r) {
+		Assertions.assertFalse(r.getSuccess());
+		Assertions.assertNull(r.getErrorType());
+		Assertions.assertNotNull(r.getErrorMessage());
+		Assertions.assertThrows(AssertionError.class, () -> r.unwrap());
 	}
 }
