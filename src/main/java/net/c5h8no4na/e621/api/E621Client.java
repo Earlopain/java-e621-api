@@ -3,6 +3,8 @@ package net.c5h8no4na.e621.api;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
@@ -49,6 +51,10 @@ public class E621Client extends ApiClient<JsonElement> {
 	public void authenticate(String username, String apiKey) {
 		this.useragent = username;
 		this.apiKey = apiKey;
+	}
+
+	protected HttpClient getHttpClient() {
+		return HttpClient.newBuilder().followRedirects(Redirect.ALWAYS).build();
 	}
 
 	private Gson getGsonInstance() {
