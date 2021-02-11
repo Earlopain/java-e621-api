@@ -1,6 +1,5 @@
 package net.c5h8no4na.e621.api;
 
-import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -13,34 +12,28 @@ public enum Endpoint {
 	POSTS,
 	USERS;
 
-	private static final String base = "https://e621.net";
-
-	public URI getById(Integer id) {
-		String url = String.format(base + "/%s/%d.json", endpointString(), id);
-		return URI.create(url);
+	public String getById(Integer id) {
+		return String.format("/%s/%d.json", endpointString(), id);
 	}
 
-	public URI getByString(String name) {
+	public String getByString(String name) {
 		String sanitized = URLEncoder.encode(name, StandardCharsets.UTF_8);
-		String url = String.format(base + "/%s/%s.json", endpointString(), sanitized);
-		return URI.create(url);
+		return String.format("/%s/%s.json", endpointString(), sanitized);
 	}
 
-	public URI get() {
+	public String get() {
 		return getWithParams(Collections.emptyMap());
 	}
 
-	public URI getWithParams(Map<String, String> queryParams) {
+	public String getWithParams(Map<String, String> queryParams) {
 		if (queryParams.size() == 0) {
-			String url = String.format(base + "/%s.json", endpointString());
-			return URI.create(url);
+			return String.format("/%s.json", endpointString());
 		} else {
 			List<String> queryParts = queryParams.entrySet().stream().map(entry -> {
 				String sanitized = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
 				return String.format("%s=%s", entry.getKey(), sanitized);
 			}).collect(Collectors.toList());
-			String url = String.format(base + "/%s.json?%s", endpointString(), String.join("&", queryParts));
-			return URI.create(url);
+			return String.format("/%s.json?%s", endpointString(), String.join("&", queryParts));
 		}
 	}
 

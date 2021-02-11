@@ -27,6 +27,9 @@ import net.c5h8no4na.e621.api.response.Tag;
 import net.c5h8no4na.e621.api.response.User;
 
 public class E621Client extends ApiClient<JsonElement> {
+
+	private String base = "https://e621.net";
+
 	private String username;
 	private String apiKey;
 	private String useragent;
@@ -44,6 +47,10 @@ public class E621Client extends ApiClient<JsonElement> {
 	public void authenticate(String username, String apiKey) {
 		this.useragent = username;
 		this.apiKey = apiKey;
+	}
+
+	public void setApiBase(String base) {
+		this.base = base;
 	}
 
 	protected HttpClient getHttpClient() {
@@ -133,8 +140,8 @@ public class E621Client extends ApiClient<JsonElement> {
 		}
 	}
 
-	public E621Request get(URI url) {
-		HttpRequest request = getBuilderBase().GET().uri(url).build();
+	public E621Request get(String url) {
+		HttpRequest request = getBuilderBase().GET().uri(URI.create(base + url)).build();
 		try {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 			return E621Request.create(response);
