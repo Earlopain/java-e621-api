@@ -35,21 +35,20 @@ public class E621Client extends ApiClient<JsonElement> {
 	private String apiKey;
 	private String useragent;
 
-	public E621Client() {
+	public E621Client(String useragent) {
 		super();
 		gson = getGsonInstance();
-	}
-
-	public E621Client(String username, String apiKey, String useragent) {
-		super();
-		gson = getGsonInstance();
-		authenticate(username, apiKey, useragent);
-	}
-
-	public void authenticate(String username, String apiKey, String useragent) {
-		this.username = username;
-		this.apiKey = apiKey;
 		this.useragent = useragent;
+	}
+
+	public E621Client(String useragent, String username, String apiKey) {
+		this(useragent);
+		authenticate(username, apiKey);
+	}
+
+	public void authenticate(String username, String apiKey) {
+		this.useragent = username;
+		this.apiKey = apiKey;
 	}
 
 	private Gson getGsonInstance() {
