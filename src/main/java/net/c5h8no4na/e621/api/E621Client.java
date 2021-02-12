@@ -72,7 +72,7 @@ public class E621Client extends ApiClient<JsonElement> {
 		Map<String, String> queryParams = Map.of("tags", String.format("id:%s", idString));
 		E621Request<List<Post>> json = get(Endpoint.POSTS.getWithParams(queryParams));
 		Type type = new TypeToken<ArrayList<Post>>() {}.getType();
-		return json.wrapIntoError(type);
+		return json.wrapIntoErrorWithType(type);
 	}
 
 	public E621Response<Tag> getTagById(Integer id) {
@@ -94,7 +94,7 @@ public class E621Client extends ApiClient<JsonElement> {
 		Map<String, String> queryParams = Map.of("search[name]", tagString, "search[hide_empty]", "no");
 		E621Request<List<Tag>> json = get(Endpoint.TAGS.getWithParams(queryParams));
 		Type type = new TypeToken<ArrayList<Tag>>() {}.getType();
-		return json.wrapIntoError(type);
+		return json.wrapIntoErrorWithType(type);
 	}
 
 	public E621Response<FullUser> getUserById(Integer id) {
@@ -110,7 +110,7 @@ public class E621Client extends ApiClient<JsonElement> {
 			Map<String, String> queryParams = Map.of("search[name_matches]", name);
 			E621Request<List<User>> jsonByName = get(Endpoint.USERS.getWithParams(queryParams));
 			Type type = new TypeToken<ArrayList<User>>() {}.getType();
-			E621Response<List<User>> response = jsonByName.wrapIntoError(type);
+			E621Response<List<User>> response = jsonByName.wrapIntoErrorWithType(type);
 			if (response.getSuccess()) {
 				E621Response<User> user = response.extractOneFromList();
 				if (user.getSuccess()) {

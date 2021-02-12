@@ -55,7 +55,15 @@ public class E621Request<T> extends NetworkRequest<JsonElement> {
 		}
 	}
 
-	E621Response<T> wrapIntoError(Type type) {
+	E621Response<T> wrapIntoError(Class<T> clazz) {
+		return wrap(clazz);
+	}
+
+	E621Response<T> wrapIntoErrorWithType(Type type) {
+		return wrap(type);
+	}
+
+	private E621Response<T> wrap(Type type) {
 		JsonElement json = gson.fromJson(data, JsonElement.class);
 		if (json.isJsonObject() && json.getAsJsonObject().entrySet().size() == 1) {
 			Entry<String, JsonElement> a = json.getAsJsonObject().entrySet().iterator().next();
