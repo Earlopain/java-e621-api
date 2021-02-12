@@ -22,6 +22,7 @@ import net.c5h8no4na.common.assertion.Assert;
 import net.c5h8no4na.common.network.ApiClient;
 import net.c5h8no4na.common.network.ErrorType;
 import net.c5h8no4na.e621.api.response.FullUser;
+import net.c5h8no4na.e621.api.response.Pool;
 import net.c5h8no4na.e621.api.response.Post;
 import net.c5h8no4na.e621.api.response.Tag;
 import net.c5h8no4na.e621.api.response.User;
@@ -125,6 +126,11 @@ public class E621Client extends ApiClient<JsonElement> {
 			E621Request<FullUser> json = get(Endpoint.USERS.getByString(name));
 			return json.wrapIntoError(FullUser.class);
 		}
+	}
+
+	public E621Response<Pool> getPoolById(Integer id) {
+		E621Request<Pool> json = get(Endpoint.POOLS.getById(id));
+		return json.wrapIntoError(Pool.class);
 	}
 
 	public <T> E621Request<T> get(String url) {

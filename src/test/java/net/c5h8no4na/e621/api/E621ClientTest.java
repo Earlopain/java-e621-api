@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import net.c5h8no4na.common.network.ApiResponse;
 import net.c5h8no4na.e621.api.response.FullUser;
+import net.c5h8no4na.e621.api.response.Pool;
 import net.c5h8no4na.e621.api.response.Post;
 import net.c5h8no4na.e621.api.response.Tag;
 
@@ -141,6 +142,21 @@ public class E621ClientTest {
 		Assertions.assertEquals(earlopain.getId(), 194340);
 		Assertions.assertEquals(integerUser.getId(), 3288);
 		Assertions.assertEquals(integerUser.getName(), "123");
+	}
+
+	@Test
+	void testGetPoolById() {
+		ApiResponse<Pool> existingPool = client.getPoolById(17319);
+		ApiResponse<Pool> nonExistantPool = client.getPoolById(-1);
+
+		assertSuccessfulResponse(existingPool);
+		assertErrorResponse(nonExistantPool);
+
+		Pool pool = existingPool.unwrap();
+
+		Assertions.assertEquals(pool.getId(), 17319);
+		Assertions.assertEquals(pool.getCreatorId(), 169756);
+		Assertions.assertEquals(pool.getName(), "Caelum_Sky");
 	}
 
 	@SuppressWarnings("rawtypes")

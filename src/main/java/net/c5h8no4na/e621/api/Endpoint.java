@@ -10,7 +10,8 @@ import java.util.stream.Collectors;
 public enum Endpoint {
 	TAGS,
 	POSTS,
-	USERS;
+	USERS,
+	POOLS;
 
 	public String getById(Integer id) {
 		return String.format("/%s/%d.json", endpointString(), id);
