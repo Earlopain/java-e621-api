@@ -82,7 +82,7 @@ public class E621Client extends ApiClient<JsonElement> {
 
 	public E621Response<Tag> getTagByName(String tag) {
 		E621Response<List<Tag>> json = getTagsByName(tag);
-		return json.extractOneFromList();
+		return extractOneFromList(json);
 	}
 
 	public E621Response<List<Tag>> getTagsByName(String... tags) {
@@ -112,7 +112,7 @@ public class E621Client extends ApiClient<JsonElement> {
 			Type type = getListType(User.class);
 			E621Response<List<User>> response = jsonByName.wrapIntoErrorWithType(type);
 			if (response.getSuccess()) {
-				E621Response<User> user = response.extractOneFromList();
+				E621Response<User> user = extractOneFromList(response);
 				if (user.getSuccess()) {
 					return getUserById(user.unwrap().getId());
 				} else {
@@ -131,6 +131,21 @@ public class E621Client extends ApiClient<JsonElement> {
 	public E621Response<Pool> getPoolById(Integer id) {
 		E621Request<Pool> json = getSingle(Endpoint.POOLS.getById(id));
 		return json.wrapIntoError(Pool.class);
+	}
+
+	private <T extends E621ApiType> E621Response<T> extractOneFromList(E621Response<List<T>> list) {
+		if (list.getSuccess()) {
+			List<T> elements = list.unwrap();
+			Assert.isTrue(elements.size() <= 1, "There should be at max 1 element returned here");
+			// element not found
+			if (elements.size() == 0) {
+				return E621Response.createNotFoundError();
+			} else {
+				return E621Response.createSuccess(elements.get(0), list.getResponseCode());
+			}
+		} else {
+			return list.reinterpretCast();
+		}
 	}
 
 	private <T extends E621ApiType> E621Request<List<T>> getList(String url) {
