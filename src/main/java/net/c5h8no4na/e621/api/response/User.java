@@ -9,9 +9,11 @@ public class User implements E621ApiType {
 	private Integer id;
 	private Date createdAt;
 	private String name;
+	private Integer level;
 	private Integer baseUploadLimit;
 	private Integer postUploadCount;
 	private Integer postUpdateCount;
+	private Integer noteUpdateCount;
 	private Boolean isBanned;
 	private Boolean canApprovePosts;
 	private Boolean canUploadFree;
