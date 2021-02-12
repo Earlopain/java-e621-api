@@ -9,7 +9,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ public class E621Client extends ApiClient<JsonElement> {
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
 		Map<String, String> queryParams = Map.of("tags", String.format("id:%s", idString));
 		E621Request<List<Post>> json = get(Endpoint.POSTS.getWithParams(queryParams));
-		Type type = new TypeToken<ArrayList<Post>>() {}.getType();
+		Type type = getListType(Post.class);
 		return json.wrapIntoErrorWithType(type);
 	}
 
@@ -93,7 +92,7 @@ public class E621Client extends ApiClient<JsonElement> {
 		String tagString = String.join(",", tags);
 		Map<String, String> queryParams = Map.of("search[name]", tagString, "search[hide_empty]", "no");
 		E621Request<List<Tag>> json = get(Endpoint.TAGS.getWithParams(queryParams));
-		Type type = new TypeToken<ArrayList<Tag>>() {}.getType();
+		Type type = getListType(Tag.class);
 		return json.wrapIntoErrorWithType(type);
 	}
 
@@ -109,7 +108,7 @@ public class E621Client extends ApiClient<JsonElement> {
 			// Get the id from the name
 			Map<String, String> queryParams = Map.of("search[name_matches]", name);
 			E621Request<List<User>> jsonByName = get(Endpoint.USERS.getWithParams(queryParams));
-			Type type = new TypeToken<ArrayList<User>>() {}.getType();
+			Type type = getListType(User.class);
 			E621Response<List<User>> response = jsonByName.wrapIntoErrorWithType(type);
 			if (response.getSuccess()) {
 				E621Response<User> user = response.extractOneFromList();
@@ -152,5 +151,9 @@ public class E621Client extends ApiClient<JsonElement> {
 		}
 		b.header("User-Agent", useragent);
 		return b;
+	}
+
+	private <T> Type getListType(Class<T> clazz) {
+		return TypeToken.getParameterized(List.class, clazz).getType();
 	}
 }
