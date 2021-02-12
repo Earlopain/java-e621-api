@@ -5,7 +5,7 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class Tag {
+public class Tag implements E621ApiType {
 	private Integer id;
 	private String name;
 	private Integer postCount;

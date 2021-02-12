@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 import net.c5h8no4na.common.assertion.Assert;
 import net.c5h8no4na.common.network.ApiClient;
 import net.c5h8no4na.common.network.ErrorType;
+import net.c5h8no4na.e621.api.response.E621ApiType;
 import net.c5h8no4na.e621.api.response.FullUser;
 import net.c5h8no4na.e621.api.response.Pool;
 import net.c5h8no4na.e621.api.response.Post;
@@ -58,7 +59,7 @@ public class E621Client extends ApiClient<JsonElement> {
 	}
 
 	public E621Response<Post> getPost(Integer id) {
-		E621Request<Post> json = get(Endpoint.POSTS.getById(id));
+		E621Request<Post> json = getSingle(Endpoint.POSTS.getById(id));
 		return json.wrapIntoError(Post.class);
 	}
 
@@ -69,13 +70,13 @@ public class E621Client extends ApiClient<JsonElement> {
 	public E621Response<List<Post>> getPosts(List<Integer> ids) {
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
 		Map<String, String> queryParams = Map.of("tags", String.format("id:%s", idString));
-		E621Request<List<Post>> json = get(Endpoint.POSTS.getWithParams(queryParams));
+		E621Request<List<Post>> json = getList(Endpoint.POSTS.getWithParams(queryParams));
 		Type type = getListType(Post.class);
 		return json.wrapIntoErrorWithType(type);
 	}
 
 	public E621Response<Tag> getTagById(Integer id) {
-		E621Request<Tag> json = get(Endpoint.TAGS.getById(id));
+		E621Request<Tag> json = getSingle(Endpoint.TAGS.getById(id));
 		return json.wrapIntoError(Tag.class);
 	}
 
@@ -91,13 +92,13 @@ public class E621Client extends ApiClient<JsonElement> {
 	public E621Response<List<Tag>> getTagsByName(List<String> tags) {
 		String tagString = String.join(",", tags);
 		Map<String, String> queryParams = Map.of("search[name]", tagString, "search[hide_empty]", "no");
-		E621Request<List<Tag>> json = get(Endpoint.TAGS.getWithParams(queryParams));
+		E621Request<List<Tag>> json = getList(Endpoint.TAGS.getWithParams(queryParams));
 		Type type = getListType(Tag.class);
 		return json.wrapIntoErrorWithType(type);
 	}
 
 	public E621Response<FullUser> getUserById(Integer id) {
-		E621Request<FullUser> json = get(Endpoint.USERS.getById(id));
+		E621Request<FullUser> json = getSingle(Endpoint.USERS.getById(id));
 		return json.wrapIntoError(FullUser.class);
 	}
 
@@ -107,7 +108,7 @@ public class E621Client extends ApiClient<JsonElement> {
 			// Name is numeric getting it would tread it as id
 			// Get the id from the name
 			Map<String, String> queryParams = Map.of("search[name_matches]", name);
-			E621Request<List<User>> jsonByName = get(Endpoint.USERS.getWithParams(queryParams));
+			E621Request<List<User>> jsonByName = getList(Endpoint.USERS.getWithParams(queryParams));
 			Type type = getListType(User.class);
 			E621Response<List<User>> response = jsonByName.wrapIntoErrorWithType(type);
 			if (response.getSuccess()) {
@@ -122,17 +123,25 @@ public class E621Client extends ApiClient<JsonElement> {
 			}
 
 		} catch (Exception e) {
-			E621Request<FullUser> json = get(Endpoint.USERS.getByString(name));
+			E621Request<FullUser> json = getSingle(Endpoint.USERS.getByString(name));
 			return json.wrapIntoError(FullUser.class);
 		}
 	}
 
 	public E621Response<Pool> getPoolById(Integer id) {
-		E621Request<Pool> json = get(Endpoint.POOLS.getById(id));
+		E621Request<Pool> json = getSingle(Endpoint.POOLS.getById(id));
 		return json.wrapIntoError(Pool.class);
 	}
 
-	public <T> E621Request<T> get(String url) {
+	private <T extends E621ApiType> E621Request<List<T>> getList(String url) {
+		return get(url);
+	}
+
+	private <T extends E621ApiType> E621Request<T> getSingle(String url) {
+		return get(url);
+	}
+
+	protected <T> E621Request<T> get(String url) {
 		HttpRequest request = getBuilderBase().GET().uri(URI.create(base + url)).build();
 		try {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
@@ -153,7 +162,7 @@ public class E621Client extends ApiClient<JsonElement> {
 		return b;
 	}
 
-	private <T> Type getListType(Class<T> clazz) {
+	private <T extends E621ApiType> Type getListType(Class<T> clazz) {
 		return TypeToken.getParameterized(List.class, clazz).getType();
 	}
 }

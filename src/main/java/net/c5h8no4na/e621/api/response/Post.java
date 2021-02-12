@@ -10,7 +10,7 @@ import net.c5h8no4na.e621.api.response.partial.Score;
 import net.c5h8no4na.e621.api.response.partial.Tags;
 
 @Data
-public class Post {
+public class Post implements E621ApiType {
 	private Integer id;
 	private Date createdAt;
 	private Date updatedAt;

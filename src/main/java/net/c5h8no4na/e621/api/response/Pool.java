@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class Pool {
+public class Pool implements E621ApiType {
 	private Integer id;
 	private String name;
 	private Date createdAt;
