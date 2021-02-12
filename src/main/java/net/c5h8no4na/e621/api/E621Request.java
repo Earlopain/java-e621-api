@@ -14,7 +14,7 @@ import net.c5h8no4na.common.assertion.Assert;
 import net.c5h8no4na.common.network.ErrorType;
 import net.c5h8no4na.common.network.NetworkRequest;
 
-public class E621Request<T> extends NetworkRequest<JsonElement> {
+class E621Request<T> extends NetworkRequest<JsonElement> {
 
 	private static Gson gson;
 
@@ -75,7 +75,7 @@ public class E621Request<T> extends NetworkRequest<JsonElement> {
 		}
 	}
 
-	public static <T> E621Request<T> create(HttpResponse<String> response) {
+	static <T> E621Request<T> create(HttpResponse<String> response) {
 		Integer responseCode = response.statusCode();
 		// Cloudflare error, not valid json and don't try to parse
 		if (responseCode >= 500 && responseCode < 600) {
@@ -89,7 +89,7 @@ public class E621Request<T> extends NetworkRequest<JsonElement> {
 		}
 	}
 
-	public static <T> E621Request<T> create(ErrorType type) {
+	static <T> E621Request<T> create(ErrorType type) {
 		E621Request<T> result = new E621Request<>();
 		result.setErrorType(type);
 		return result;

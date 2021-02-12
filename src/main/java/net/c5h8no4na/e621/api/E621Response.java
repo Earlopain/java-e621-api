@@ -3,7 +3,7 @@ package net.c5h8no4na.e621.api;
 import net.c5h8no4na.common.assertion.Assert;
 import net.c5h8no4na.common.network.ApiResponse;
 
-public class E621Response<T> extends ApiResponse<T> {
+class E621Response<T> extends ApiResponse<T> {
 
 	private E621Response() {}
 
