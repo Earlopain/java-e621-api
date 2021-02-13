@@ -5,6 +5,7 @@ import java.util.List;
 
 import lombok.Data;
 import net.c5h8no4na.e621.api.response.partial.File;
+import net.c5h8no4na.e621.api.response.partial.Flags;
 import net.c5h8no4na.e621.api.response.partial.Relationships;
 import net.c5h8no4na.e621.api.response.partial.Score;
 import net.c5h8no4na.e621.api.response.partial.Tags;
@@ -17,6 +18,7 @@ public class PostApi implements E621ApiType {
 	private File file;
 	private Score score;
 	private Tags tags;
+	private Flags flags;
 	private String rating;
 	private Integer favCount;
 	private List<String> sources;
