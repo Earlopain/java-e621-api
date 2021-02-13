@@ -5,7 +5,7 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class User implements E621ApiType {
+public class UserApi implements E621ApiType {
 	private Integer id;
 	private Date createdAt;
 	private String name;

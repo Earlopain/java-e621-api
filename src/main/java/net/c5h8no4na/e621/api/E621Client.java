@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import net.c5h8no4na.e621.api.response.FullUser;
-import net.c5h8no4na.e621.api.response.Pool;
-import net.c5h8no4na.e621.api.response.Post;
-import net.c5h8no4na.e621.api.response.Tag;
-import net.c5h8no4na.e621.api.response.User;
+import net.c5h8no4na.e621.api.response.FullUserApi;
+import net.c5h8no4na.e621.api.response.PoolApi;
+import net.c5h8no4na.e621.api.response.PostApi;
+import net.c5h8no4na.e621.api.response.TagApi;
+import net.c5h8no4na.e621.api.response.UserApi;
 
 public class E621Client extends E621ClientBase {
 
@@ -22,61 +22,61 @@ public class E621Client extends E621ClientBase {
 		super(useragent, username, apiKey);
 	}
 
-	public E621Response<Post> getPost(Integer id) {
-		E621Request<Post> json = getSingle(Endpoint.POSTS.getById(id));
-		return json.wrapIntoError(Post.class);
+	public E621Response<PostApi> getPost(Integer id) {
+		E621Request<PostApi> json = getSingle(Endpoint.POSTS.getById(id));
+		return json.wrapIntoError(PostApi.class);
 	}
 
-	public E621Response<List<Post>> getPosts(Integer... ids) {
+	public E621Response<List<PostApi>> getPosts(Integer... ids) {
 		return getPosts(Arrays.asList(ids));
 	}
 
-	public E621Response<List<Post>> getPosts(List<Integer> ids) {
+	public E621Response<List<PostApi>> getPosts(List<Integer> ids) {
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
 		Map<String, String> queryParams = Map.of("tags", String.format("id:%s", idString));
-		E621Request<List<Post>> json = getList(Endpoint.POSTS.getWithParams(queryParams));
-		Type type = getListType(Post.class);
+		E621Request<List<PostApi>> json = getList(Endpoint.POSTS.getWithParams(queryParams));
+		Type type = getListType(PostApi.class);
 		return json.wrapIntoErrorWithType(type);
 	}
 
-	public E621Response<Tag> getTagById(Integer id) {
-		E621Request<Tag> json = getSingle(Endpoint.TAGS.getById(id));
-		return json.wrapIntoError(Tag.class);
+	public E621Response<TagApi> getTagById(Integer id) {
+		E621Request<TagApi> json = getSingle(Endpoint.TAGS.getById(id));
+		return json.wrapIntoError(TagApi.class);
 	}
 
-	public E621Response<Tag> getTagByName(String tag) {
-		E621Response<List<Tag>> json = getTagsByName(tag);
+	public E621Response<TagApi> getTagByName(String tag) {
+		E621Response<List<TagApi>> json = getTagsByName(tag);
 		return extractOneFromList(json);
 	}
 
-	public E621Response<List<Tag>> getTagsByName(String... tags) {
+	public E621Response<List<TagApi>> getTagsByName(String... tags) {
 		return getTagsByName(Arrays.asList(tags));
 	}
 
-	public E621Response<List<Tag>> getTagsByName(List<String> tags) {
+	public E621Response<List<TagApi>> getTagsByName(List<String> tags) {
 		String tagString = String.join(",", tags);
 		Map<String, String> queryParams = Map.of("search[name]", tagString, "search[hide_empty]", "no");
-		E621Request<List<Tag>> json = getList(Endpoint.TAGS.getWithParams(queryParams));
-		Type type = getListType(Tag.class);
+		E621Request<List<TagApi>> json = getList(Endpoint.TAGS.getWithParams(queryParams));
+		Type type = getListType(TagApi.class);
 		return json.wrapIntoErrorWithType(type);
 	}
 
-	public E621Response<FullUser> getUserById(Integer id) {
-		E621Request<FullUser> json = getSingle(Endpoint.USERS.getById(id));
-		return json.wrapIntoError(FullUser.class);
+	public E621Response<FullUserApi> getUserById(Integer id) {
+		E621Request<FullUserApi> json = getSingle(Endpoint.USERS.getById(id));
+		return json.wrapIntoError(FullUserApi.class);
 	}
 
-	public E621Response<FullUser> getUserByName(String name) {
+	public E621Response<FullUserApi> getUserByName(String name) {
 		try {
 			Integer.parseInt(name);
 			// Name is numeric getting it would tread it as id
 			// Get the id from the name
 			Map<String, String> queryParams = Map.of("search[name_matches]", name);
-			E621Request<List<User>> jsonByName = getList(Endpoint.USERS.getWithParams(queryParams));
-			Type type = getListType(User.class);
-			E621Response<List<User>> response = jsonByName.wrapIntoErrorWithType(type);
+			E621Request<List<UserApi>> jsonByName = getList(Endpoint.USERS.getWithParams(queryParams));
+			Type type = getListType(UserApi.class);
+			E621Response<List<UserApi>> response = jsonByName.wrapIntoErrorWithType(type);
 			if (response.getSuccess()) {
-				E621Response<User> user = extractOneFromList(response);
+				E621Response<UserApi> user = extractOneFromList(response);
 				if (user.getSuccess()) {
 					return getUserById(user.unwrap().getId());
 				} else {
@@ -87,13 +87,13 @@ public class E621Client extends E621ClientBase {
 			}
 
 		} catch (Exception e) {
-			E621Request<FullUser> json = getSingle(Endpoint.USERS.getByString(name));
-			return json.wrapIntoError(FullUser.class);
+			E621Request<FullUserApi> json = getSingle(Endpoint.USERS.getByString(name));
+			return json.wrapIntoError(FullUserApi.class);
 		}
 	}
 
-	public E621Response<Pool> getPoolById(Integer id) {
-		E621Request<Pool> json = getSingle(Endpoint.POOLS.getById(id));
-		return json.wrapIntoError(Pool.class);
+	public E621Response<PoolApi> getPoolById(Integer id) {
+		E621Request<PoolApi> json = getSingle(Endpoint.POOLS.getById(id));
+		return json.wrapIntoError(PoolApi.class);
 	}
 }

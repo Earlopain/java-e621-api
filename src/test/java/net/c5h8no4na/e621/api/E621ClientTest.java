@@ -7,10 +7,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import net.c5h8no4na.common.network.ApiResponse;
-import net.c5h8no4na.e621.api.response.FullUser;
-import net.c5h8no4na.e621.api.response.Pool;
-import net.c5h8no4na.e621.api.response.Post;
-import net.c5h8no4na.e621.api.response.Tag;
+import net.c5h8no4na.e621.api.response.FullUserApi;
+import net.c5h8no4na.e621.api.response.PoolApi;
+import net.c5h8no4na.e621.api.response.PostApi;
+import net.c5h8no4na.e621.api.response.TagApi;
 
 public class E621ClientTest {
 
@@ -23,32 +23,32 @@ public class E621ClientTest {
 
 	@Test
 	void testApiResponse() {
-		ApiResponse<Post> exists = client.getPost(100);
-		ApiResponse<Post> notExists = client.getPost(1);
+		ApiResponse<PostApi> exists = client.getPost(100);
+		ApiResponse<PostApi> notExists = client.getPost(1);
 		assertSuccessfulResponse(exists);
 		assertErrorResponse(notExists);
 	}
 
 	@Test
 	void testGetPostById() {
-		ApiResponse<Post> exists = client.getPost(100);
-		ApiResponse<Post> notExists = client.getPost(1);
+		ApiResponse<PostApi> exists = client.getPost(100);
+		ApiResponse<PostApi> notExists = client.getPost(1);
 
 		// Test response status
 		assertSuccessfulResponse(exists);
 		assertErrorResponse(notExists);
 
 		// Test response content
-		Post post = exists.unwrap();
+		PostApi post = exists.unwrap();
 		Assertions.assertEquals(post.getId(), 100);
 		Assertions.assertEquals(post.getFile().getMd5(), "d85c7d365cf593cae3cdf7c931325ee7");
 	}
 
 	@Test
 	void testGetMultiplePosts() {
-		ApiResponse<List<Post>> response1 = client.getPosts();
-		ApiResponse<List<Post>> response2 = client.getPosts(-1, 1, 100);
-		ApiResponse<List<Post>> response3 = client.getPosts(1, 2, 5, 100, 500, 700, 1000, 5000, 7500, 10000);
+		ApiResponse<List<PostApi>> response1 = client.getPosts();
+		ApiResponse<List<PostApi>> response2 = client.getPosts(-1, 1, 100);
+		ApiResponse<List<PostApi>> response3 = client.getPosts(1, 2, 5, 100, 500, 700, 1000, 5000, 7500, 10000);
 		assertSuccessfulResponse(response1);
 		assertSuccessfulResponse(response2);
 		assertSuccessfulResponse(response3);
@@ -63,15 +63,15 @@ public class E621ClientTest {
 
 	@Test
 	void testGetTagById() {
-		ApiResponse<Tag> dragon = client.getTagById(1);
-		ApiResponse<Tag> notExists1 = client.getTagById(0);
-		ApiResponse<Tag> notExists2 = client.getTagById(-1);
+		ApiResponse<TagApi> dragon = client.getTagById(1);
+		ApiResponse<TagApi> notExists1 = client.getTagById(0);
+		ApiResponse<TagApi> notExists2 = client.getTagById(-1);
 
 		assertSuccessfulResponse(dragon);
 		assertErrorResponse(notExists1);
 		assertErrorResponse(notExists2);
 
-		Tag tag = dragon.unwrap();
+		TagApi tag = dragon.unwrap();
 
 		Assertions.assertEquals(tag.getId(), 1);
 		Assertions.assertEquals(tag.getName(), "dragon");
@@ -80,9 +80,9 @@ public class E621ClientTest {
 
 	@Test
 	void testGetMultipleTags() {
-		ApiResponse<List<Tag>> response1 = client.getTagsByName();
-		ApiResponse<List<Tag>> response2 = client.getTagsByName("ghhehehe", "adas", "male");
-		ApiResponse<List<Tag>> response3 = client.getTagsByName("male", "female", "dragon", "pokémon");
+		ApiResponse<List<TagApi>> response1 = client.getTagsByName();
+		ApiResponse<List<TagApi>> response2 = client.getTagsByName("ghhehehe", "adas", "male");
+		ApiResponse<List<TagApi>> response3 = client.getTagsByName("male", "female", "dragon", "pokémon");
 		assertSuccessfulResponse(response1);
 		assertSuccessfulResponse(response2);
 		assertSuccessfulResponse(response3);
@@ -94,11 +94,11 @@ public class E621ClientTest {
 
 	@Test
 	void testGetTagByName() {
-		ApiResponse<Tag> dragon = client.getTagByName("dragon");
-		ApiResponse<Tag> pokemon = client.getTagByName("pokémon");
-		ApiResponse<Tag> integerTag = client.getTagByName("123");
-		ApiResponse<Tag> nonExists = client.getTagByName("wgmwpood");
-		ApiResponse<Tag> notExistsIntegerTag = client.getTagByName("12398252");
+		ApiResponse<TagApi> dragon = client.getTagByName("dragon");
+		ApiResponse<TagApi> pokemon = client.getTagByName("pokémon");
+		ApiResponse<TagApi> integerTag = client.getTagByName("123");
+		ApiResponse<TagApi> nonExists = client.getTagByName("wgmwpood");
+		ApiResponse<TagApi> notExistsIntegerTag = client.getTagByName("12398252");
 
 		assertSuccessfulResponse(dragon);
 		assertSuccessfulResponse(pokemon);
@@ -114,11 +114,11 @@ public class E621ClientTest {
 
 	@Test
 	void testGetUserById() {
-		ApiResponse<FullUser> existingUser = client.getUserById(194340);
-		ApiResponse<FullUser> notExists = client.getUserById(0);
+		ApiResponse<FullUserApi> existingUser = client.getUserById(194340);
+		ApiResponse<FullUserApi> notExists = client.getUserById(0);
 		assertSuccessfulResponse(existingUser);
 		assertErrorResponse(notExists);
-		FullUser earlopain = existingUser.unwrap();
+		FullUserApi earlopain = existingUser.unwrap();
 		Assertions.assertEquals(earlopain.getName(), "Earlopain");
 		Assertions.assertEquals(earlopain.getId(), 194340);
 
@@ -126,18 +126,18 @@ public class E621ClientTest {
 
 	@Test
 	void testGetUserByName() {
-		ApiResponse<FullUser> existingUser = client.getUserByName("earlopain");
-		ApiResponse<FullUser> userWithIntegerName = client.getUserByName("123");
-		ApiResponse<FullUser> nonExistingUser = client.getUserByName("jfowjfofwf");
-		ApiResponse<FullUser> nonExistingUserWithIntegers = client.getUserByName("80895019751");
+		ApiResponse<FullUserApi> existingUser = client.getUserByName("earlopain");
+		ApiResponse<FullUserApi> userWithIntegerName = client.getUserByName("123");
+		ApiResponse<FullUserApi> nonExistingUser = client.getUserByName("jfowjfofwf");
+		ApiResponse<FullUserApi> nonExistingUserWithIntegers = client.getUserByName("80895019751");
 
 		assertSuccessfulResponse(existingUser);
 		assertSuccessfulResponse(userWithIntegerName);
 		assertErrorResponse(nonExistingUser);
 		assertErrorResponse(nonExistingUserWithIntegers);
 
-		FullUser earlopain = existingUser.unwrap();
-		FullUser integerUser = userWithIntegerName.unwrap();
+		FullUserApi earlopain = existingUser.unwrap();
+		FullUserApi integerUser = userWithIntegerName.unwrap();
 
 		Assertions.assertEquals(earlopain.getId(), 194340);
 		Assertions.assertEquals(integerUser.getId(), 3288);
@@ -146,13 +146,13 @@ public class E621ClientTest {
 
 	@Test
 	void testGetPoolById() {
-		ApiResponse<Pool> existingPool = client.getPoolById(17319);
-		ApiResponse<Pool> nonExistantPool = client.getPoolById(-1);
+		ApiResponse<PoolApi> existingPool = client.getPoolById(17319);
+		ApiResponse<PoolApi> nonExistantPool = client.getPoolById(-1);
 
 		assertSuccessfulResponse(existingPool);
 		assertErrorResponse(nonExistantPool);
 
-		Pool pool = existingPool.unwrap();
+		PoolApi pool = existingPool.unwrap();
 
 		Assertions.assertEquals(pool.getId(), 17319);
 		Assertions.assertEquals(pool.getCreatorId(), 169756);

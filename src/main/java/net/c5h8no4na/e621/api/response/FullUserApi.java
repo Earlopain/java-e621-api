@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class FullUser extends User implements E621ApiType {
+public class FullUserApi extends UserApi implements E621ApiType {
 	private Integer wikiPageVersionCount;
 	private Integer artistVersionCount;
 	private Integer poolVersionCount;
