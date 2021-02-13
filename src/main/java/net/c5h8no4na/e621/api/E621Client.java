@@ -1,9 +1,15 @@
 package net.c5h8no4na.e621.api;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import net.c5h8no4na.e621.api.response.FullUserApi;
@@ -95,5 +101,20 @@ public class E621Client extends E621ClientBase {
 	public E621Response<PoolApi> getPoolById(Integer id) {
 		E621Request<PoolApi> json = getSingle(Endpoint.POOLS.getById(id));
 		return json.wrapIntoError(PoolApi.class);
+	}
+
+	public Optional<byte[]> getFile(String md5, String extension) {
+		String url = produceImageUrl.apply(md5, extension);
+		HttpRequest request = getBuilderBase().GET().uri(URI.create(url)).build();
+		try {
+			HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
+			if (response.statusCode() == 200) {
+				return Optional.of(response.body());
+			} else {
+				return Optional.empty();
+			}
+		} catch (IOException | InterruptedException e) {
+			return Optional.empty();
+		}
 	}
 }

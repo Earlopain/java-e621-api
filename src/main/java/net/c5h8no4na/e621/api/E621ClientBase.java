@@ -10,10 +10,13 @@ import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.c5h8no4na.common.assertion.Assert;
 import net.c5h8no4na.common.network.ApiClient;
 import net.c5h8no4na.common.network.ErrorType;
@@ -21,7 +24,15 @@ import net.c5h8no4na.e621.api.response.E621ApiType;
 
 abstract class E621ClientBase extends ApiClient<JsonElement> {
 
-	private String base = "https://e621.net";
+	@Getter
+	@Setter
+	private String apiBase = "https://e621.net";
+
+	@Getter
+	@Setter
+	protected BiFunction<String, String, String> produceImageUrl = (md5, extension) -> {
+		return String.format("https://static1.e621.net/data/%s/%s/%s.%s", md5.substring(0, 2), md5.substring(2, 4), md5, extension);
+	};
 
 	private String username;
 	private String apiKey;
@@ -40,10 +51,6 @@ abstract class E621ClientBase extends ApiClient<JsonElement> {
 	public void authenticate(String username, String apiKey) {
 		this.useragent = username;
 		this.apiKey = apiKey;
-	}
-
-	public void setApiBase(String base) {
-		this.base = base;
 	}
 
 	protected HttpClient getHttpClient() {
@@ -74,7 +81,7 @@ abstract class E621ClientBase extends ApiClient<JsonElement> {
 	}
 
 	protected <T> E621Request<T> get(String url) {
-		HttpRequest request = getBuilderBase().GET().uri(URI.create(base + url)).build();
+		HttpRequest request = getBuilderBase().GET().uri(URI.create(apiBase + url)).build();
 		try {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 			return E621Request.create(response);
