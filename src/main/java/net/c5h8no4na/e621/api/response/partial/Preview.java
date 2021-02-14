@@ -5,12 +5,9 @@ import java.util.Optional;
 import lombok.Data;
 
 @Data
-public class File {
+public class Preview {
 	private Integer width;
 	private Integer height;
-	private String ext;
-	private Integer size;
-	private String md5;
 	private String url;
 
 	public Optional<String> getUrl() {

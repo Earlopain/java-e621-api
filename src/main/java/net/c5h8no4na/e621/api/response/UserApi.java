@@ -1,6 +1,7 @@
 package net.c5h8no4na.e621.api.response;
 
 import java.util.Date;
+import java.util.Optional;
 
 import lombok.Data;
 
@@ -19,4 +20,8 @@ public class UserApi implements E621ApiType {
 	private Boolean canUploadFree;
 	private String levelString;
 	private Integer avatarId;
+
+	public Optional<Integer> getAvatarId() {
+		return Optional.ofNullable(avatarId);
+	}
 }

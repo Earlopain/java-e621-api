@@ -159,6 +159,27 @@ public class E621ClientTest {
 		Assertions.assertEquals(pool.getName(), "Caelum_Sky");
 	}
 
+	@Test
+	void testPostHasValues() {
+		PostApi post = client.getPost(2597886).unwrap();
+		Assertions.assertTrue(post.getFile().getUrl().isPresent());
+		Assertions.assertTrue(post.getPreview().getUrl().isPresent());
+		Assertions.assertTrue(post.getSample().getUrl().isPresent());
+		Assertions.assertTrue(post.getSample().getAlternates().size() == 3);
+		Assertions.assertTrue(post.getSample().getAlternates().get("480p").getUrls().size() == 2);
+		Assertions.assertTrue(post.getApproverId().isPresent() && post.getApproverId().get() == 38571);
+		Assertions.assertTrue(post.getDuration().isPresent());
+
+		PostApi post2 = client.getPost(2165995).unwrap();
+		Assertions.assertTrue(post2.getFile().getUrl().isEmpty());
+		Assertions.assertTrue(post2.getPreview().getUrl().isEmpty());
+		Assertions.assertTrue(post2.getSample().getUrl().isEmpty());
+		Assertions.assertTrue(post2.getSample().getAlternates().size() == 0);
+		Assertions.assertTrue(post2.getApproverId().isPresent() && post2.getApproverId().get() == 169756);
+		Assertions.assertTrue(post2.getDuration().isEmpty());
+
+	}
+
 	@SuppressWarnings("rawtypes")
 	private void assertSuccessfulResponse(ApiResponse r) {
 		Assertions.assertTrue(r.getSuccess());
