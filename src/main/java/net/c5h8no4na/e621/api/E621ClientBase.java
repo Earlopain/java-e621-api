@@ -11,6 +11,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.logging.Logger;
 
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
@@ -23,6 +24,8 @@ import net.c5h8no4na.common.network.ErrorType;
 import net.c5h8no4na.e621.api.response.E621ApiType;
 
 abstract class E621ClientBase extends ApiClient<JsonElement> {
+
+	protected static final Logger LOG = Logger.getLogger(E621Client.class.getCanonicalName());
 
 	@Getter
 	@Setter
@@ -81,6 +84,7 @@ abstract class E621ClientBase extends ApiClient<JsonElement> {
 	}
 
 	protected <T> E621Request<T> get(String url) {
+		LOG.finest(String.format("Making request for %s", url));
 		HttpRequest request = getBuilderBase().GET().uri(URI.create(apiBase + url)).build();
 		try {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());

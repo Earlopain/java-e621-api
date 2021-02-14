@@ -104,6 +104,7 @@ public class E621Client extends E621ClientBase {
 	}
 
 	public Optional<byte[]> getFile(String md5, String extension) {
+		LOG.finest(String.format("Downloading file %s.%s", md5, extension));
 		String url = produceImageUrl.apply(md5, extension);
 		HttpRequest request = getBuilderBase().GET().uri(URI.create(url)).build();
 		try {
