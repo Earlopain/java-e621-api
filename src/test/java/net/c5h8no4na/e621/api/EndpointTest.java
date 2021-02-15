@@ -7,7 +7,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class EndpointTest {
+class EndpointTest {
 
 	@Test
 	void testEndpointGet() {

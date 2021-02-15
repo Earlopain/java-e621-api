@@ -10,7 +10,7 @@ import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.logging.Logger;
 
 import com.google.gson.JsonElement;
@@ -33,7 +33,7 @@ abstract class E621ClientBase extends ApiClient<JsonElement> {
 
 	@Getter
 	@Setter
-	protected BiFunction<String, String, String> produceImageUrl = (md5, extension) -> {
+	protected BinaryOperator<String> produceImageUrl = (md5, extension) -> {
 		return String.format("https://static1.e621.net/data/%s/%s/%s.%s", md5.substring(0, 2), md5.substring(2, 4), md5, extension);
 	};
 
@@ -61,11 +61,11 @@ abstract class E621ClientBase extends ApiClient<JsonElement> {
 	}
 
 	protected <T extends E621ApiType> E621Response<T> extractOneFromList(E621Response<List<T>> list) {
-		if (list.getSuccess()) {
+		if (list.isSuccess()) {
 			List<T> elements = list.unwrap();
 			Assert.isTrue(elements.size() <= 1, "There should be at max 1 element returned here");
 			// element not found
-			if (elements.size() == 0) {
+			if (elements.isEmpty()) {
 				return E621Response.createNotFoundError();
 			} else {
 				return E621Response.createSuccess(elements.get(0), list.getResponseCode());
@@ -84,7 +84,7 @@ abstract class E621ClientBase extends ApiClient<JsonElement> {
 	}
 
 	protected <T> E621Request<T> get(String url) {
-		LOG.finest(String.format("Making request for %s", url));
+		LOG.warning(() -> String.format("Making request for %s", url));
 		HttpRequest request = getBuilderBase().GET().uri(URI.create(apiBase + url)).build();
 		try {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());

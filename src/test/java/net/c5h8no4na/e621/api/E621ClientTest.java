@@ -12,7 +12,7 @@ import net.c5h8no4na.e621.api.response.PoolApi;
 import net.c5h8no4na.e621.api.response.PostApi;
 import net.c5h8no4na.e621.api.response.TagApi;
 
-public class E621ClientTest {
+class E621ClientTest {
 
 	private static E621Client client;
 
@@ -40,8 +40,8 @@ public class E621ClientTest {
 
 		// Test response content
 		PostApi post = exists.unwrap();
-		Assertions.assertEquals(post.getId(), 100);
-		Assertions.assertEquals(post.getFile().getMd5(), "d85c7d365cf593cae3cdf7c931325ee7");
+		Assertions.assertEquals(100, post.getId());
+		Assertions.assertEquals("d85c7d365cf593cae3cdf7c931325ee7", post.getFile().getMd5());
 	}
 
 	@Test
@@ -54,11 +54,11 @@ public class E621ClientTest {
 		assertSuccessfulResponse(response3);
 
 		// Test empty list
-		Assertions.assertEquals(response1.unwrap().size(), 0);
+		Assertions.assertEquals(0, response1.unwrap().size());
 		// Test list with deleted post
-		Assertions.assertEquals(response2.unwrap().size(), 1);
+		Assertions.assertEquals(1, response2.unwrap().size());
 		// Test large list
-		Assertions.assertEquals(response3.unwrap().size(), 5);
+		Assertions.assertEquals(5, response3.unwrap().size());
 	}
 
 	@Test
@@ -73,9 +73,9 @@ public class E621ClientTest {
 
 		TagApi tag = dragon.unwrap();
 
-		Assertions.assertEquals(tag.getId(), 1);
-		Assertions.assertEquals(tag.getName(), "dragon");
-		Assertions.assertEquals(tag.getCategory(), 5);
+		Assertions.assertEquals(1, tag.getId());
+		Assertions.assertEquals("dragon", tag.getName());
+		Assertions.assertEquals(5, tag.getCategory());
 	}
 
 	@Test
@@ -87,9 +87,9 @@ public class E621ClientTest {
 		assertSuccessfulResponse(response2);
 		assertSuccessfulResponse(response3);
 		// If not names are passed api returns the last 75
-		Assertions.assertEquals(response1.unwrap().size(), 75);
-		Assertions.assertEquals(response2.unwrap().size(), 1);
-		Assertions.assertEquals(response3.unwrap().size(), 4);
+		Assertions.assertEquals(75, response1.unwrap().size());
+		Assertions.assertEquals(1, response2.unwrap().size());
+		Assertions.assertEquals(4, response3.unwrap().size());
 	}
 
 	@Test
@@ -106,10 +106,10 @@ public class E621ClientTest {
 		assertErrorResponse(nonExists);
 		assertErrorResponse(notExistsIntegerTag);
 
-		Assertions.assertEquals(dragon.unwrap().getId(), 1);
-		Assertions.assertEquals(pokemon.unwrap().getId(), 16913);
-		Assertions.assertEquals(integerTag.unwrap().getId(), 181869);
-		Assertions.assertEquals(integerTag.unwrap().getName(), "123");
+		Assertions.assertEquals(1, dragon.unwrap().getId());
+		Assertions.assertEquals(16913, pokemon.unwrap().getId());
+		Assertions.assertEquals(181869, integerTag.unwrap().getId());
+		Assertions.assertEquals("123", integerTag.unwrap().getName());
 	}
 
 	@Test
@@ -119,8 +119,8 @@ public class E621ClientTest {
 		assertSuccessfulResponse(existingUser);
 		assertErrorResponse(notExists);
 		FullUserApi earlopain = existingUser.unwrap();
-		Assertions.assertEquals(earlopain.getName(), "Earlopain");
-		Assertions.assertEquals(earlopain.getId(), 194340);
+		Assertions.assertEquals("Earlopain", earlopain.getName());
+		Assertions.assertEquals(194340, earlopain.getId());
 
 	}
 
@@ -139,9 +139,9 @@ public class E621ClientTest {
 		FullUserApi earlopain = existingUser.unwrap();
 		FullUserApi integerUser = userWithIntegerName.unwrap();
 
-		Assertions.assertEquals(earlopain.getId(), 194340);
-		Assertions.assertEquals(integerUser.getId(), 3288);
-		Assertions.assertEquals(integerUser.getName(), "123");
+		Assertions.assertEquals(194340, earlopain.getId());
+		Assertions.assertEquals(3288, integerUser.getId());
+		Assertions.assertEquals("123", integerUser.getName());
 	}
 
 	@Test
@@ -154,9 +154,9 @@ public class E621ClientTest {
 
 		PoolApi pool = existingPool.unwrap();
 
-		Assertions.assertEquals(pool.getId(), 17319);
-		Assertions.assertEquals(pool.getCreatorId(), 169756);
-		Assertions.assertEquals(pool.getName(), "Caelum_Sky");
+		Assertions.assertEquals(17319, pool.getId());
+		Assertions.assertEquals(169756, pool.getCreatorId());
+		Assertions.assertEquals("Caelum_Sky", pool.getName());
 	}
 
 	@Test
@@ -165,24 +165,24 @@ public class E621ClientTest {
 		Assertions.assertTrue(post.getFile().getUrl().isPresent());
 		Assertions.assertTrue(post.getPreview().getUrl().isPresent());
 		Assertions.assertTrue(post.getSample().getUrl().isPresent());
-		Assertions.assertTrue(post.getSample().getAlternates().size() == 3);
-		Assertions.assertTrue(post.getSample().getAlternates().get("480p").getUrls().size() == 2);
-		Assertions.assertTrue(post.getApproverId().isPresent() && post.getApproverId().get() == 38571);
 		Assertions.assertTrue(post.getDuration().isPresent());
+		Assertions.assertEquals(3, post.getSample().getAlternates().size());
+		Assertions.assertEquals(2, post.getSample().getAlternates().get("480p").getUrls().size());
+		Assertions.assertEquals(38571, post.getApproverId().get());
 
 		PostApi post2 = client.getPost(2165995).unwrap();
 		Assertions.assertTrue(post2.getFile().getUrl().isEmpty());
 		Assertions.assertTrue(post2.getPreview().getUrl().isEmpty());
 		Assertions.assertTrue(post2.getSample().getUrl().isEmpty());
-		Assertions.assertTrue(post2.getSample().getAlternates().size() == 0);
-		Assertions.assertTrue(post2.getApproverId().isPresent() && post2.getApproverId().get() == 169756);
 		Assertions.assertTrue(post2.getDuration().isEmpty());
+		Assertions.assertEquals(0, post2.getSample().getAlternates().size());
+		Assertions.assertEquals(169756, post2.getApproverId().get());
 
 	}
 
 	@SuppressWarnings("rawtypes")
 	private void assertSuccessfulResponse(ApiResponse r) {
-		Assertions.assertTrue(r.getSuccess());
+		Assertions.assertTrue(r.isSuccess());
 		Assertions.assertNull(r.getErrorType());
 		Assertions.assertNull(r.getErrorMessage());
 		Assertions.assertTrue(r.getResponseCode() >= 200 && r.getResponseCode() < 300);
@@ -191,7 +191,7 @@ public class E621ClientTest {
 
 	@SuppressWarnings("rawtypes")
 	private void assertErrorResponse(ApiResponse r) {
-		Assertions.assertFalse(r.getSuccess());
+		Assertions.assertFalse(r.isSuccess());
 		Assertions.assertNull(r.getErrorType());
 		Assertions.assertNotNull(r.getErrorMessage());
 		Assertions.assertThrows(AssertionError.class, () -> r.unwrap());

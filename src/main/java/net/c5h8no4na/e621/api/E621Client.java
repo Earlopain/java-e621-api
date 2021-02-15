@@ -81,9 +81,9 @@ public class E621Client extends E621ClientBase {
 			E621Request<List<UserApi>> jsonByName = getList(Endpoint.USERS.getWithParams(queryParams));
 			Type type = getListType(UserApi.class);
 			E621Response<List<UserApi>> response = jsonByName.wrapIntoErrorWithType(type);
-			if (response.getSuccess()) {
+			if (response.isSuccess()) {
 				E621Response<UserApi> user = extractOneFromList(response);
-				if (user.getSuccess()) {
+				if (user.isSuccess()) {
 					return getUserById(user.unwrap().getId());
 				} else {
 					return response.reinterpretCast();
@@ -104,7 +104,7 @@ public class E621Client extends E621ClientBase {
 	}
 
 	public Optional<byte[]> getFile(String md5, String extension) {
-		LOG.finest(String.format("Downloading file %s.%s", md5, extension));
+		LOG.warning(() -> String.format("Downloading file %s.%s", md5, extension));
 		String url = produceImageUrl.apply(md5, extension);
 		HttpRequest request = getBuilderBase().GET().uri(URI.create(url)).build();
 		try {

@@ -40,12 +40,12 @@ public class E621Response<T> extends ApiResponse<T> {
 
 	@SuppressWarnings({ "unchecked" })
 	<U> E621Response<U> reinterpretCast() {
-		Assert.isFalse(getSuccess());
+		Assert.isFalse(isSuccess());
 		return reinterpretCast(this);
 	}
 
 	@SuppressWarnings({ "rawtypes" })
-	private static <T> E621Response reinterpretCast(E621Response r) {
+	private static E621Response reinterpretCast(E621Response r) {
 		return r;
 	}
 }

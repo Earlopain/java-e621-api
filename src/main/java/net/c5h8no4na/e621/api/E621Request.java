@@ -35,7 +35,7 @@ class E621Request<T> extends NetworkRequest<JsonElement> {
 		}
 	}
 
-	public Boolean isSuccess() {
+	public boolean isSuccess() {
 		if (data == null) {
 			// Request did not go through
 			return false;

@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class Flags {
-	private Boolean pending;
-	private Boolean flagged;
-	private Boolean noteLocked;
-	private Boolean statusLocked;
-	private Boolean ratingLocked;
-	private Boolean deleted;
+	private boolean pending;
+	private boolean flagged;
+	private boolean noteLocked;
+	private boolean statusLocked;
+	private boolean ratingLocked;
+	private boolean deleted;
 }
