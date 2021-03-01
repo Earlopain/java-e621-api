@@ -11,18 +11,44 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 
 import net.c5h8no4na.common.assertion.Assert;
-import net.c5h8no4na.common.network.ErrorType;
-import net.c5h8no4na.common.network.NetworkRequest;
 
-class E621Request<T> extends NetworkRequest<JsonElement> {
+class E621Request<T> {
+	private static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
-	private static Gson gson;
-
-	static {
-		gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-	}
+	protected JsonElement data;
+	protected Integer responseCode;
+	protected ErrorType errorType;
 
 	private E621Request() {}
+
+	public JsonElement getData() {
+		Assert.notNull(data, "check for error first");
+		return data;
+	}
+
+	private void setData(JsonElement data) {
+		this.data = data;
+	}
+
+	public Integer getResponseCode() {
+		return responseCode;
+	}
+
+	private void setResponseCode(Integer responseCode) {
+		this.responseCode = responseCode;
+	}
+
+	public void setErrorType(ErrorType errorType) {
+		this.errorType = errorType;
+	}
+
+	public ErrorType getErrorType() {
+		return errorType;
+	}
+
+	private boolean responseCodeOk() {
+		return responseCode >= 200 && responseCode < 300;
+	}
 
 	public String getErrorMessage() {
 		Assert.isFalse(isSuccess(), "only get errormessage if request not successfull");

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import net.c5h8no4na.common.network.ApiResponse;
 import net.c5h8no4na.e621.api.response.FullUserApi;
 import net.c5h8no4na.e621.api.response.PoolApi;
 import net.c5h8no4na.e621.api.response.PostApi;
@@ -23,16 +22,16 @@ class E621ClientTest {
 
 	@Test
 	void testApiResponse() {
-		ApiResponse<PostApi> exists = client.getPost(100);
-		ApiResponse<PostApi> notExists = client.getPost(1);
+		E621Response<PostApi> exists = client.getPost(100);
+		E621Response<PostApi> notExists = client.getPost(1);
 		assertSuccessfulResponse(exists);
 		assertErrorResponse(notExists);
 	}
 
 	@Test
 	void testGetPostById() {
-		ApiResponse<PostApi> exists = client.getPost(100);
-		ApiResponse<PostApi> notExists = client.getPost(1);
+		E621Response<PostApi> exists = client.getPost(100);
+		E621Response<PostApi> notExists = client.getPost(1);
 
 		// Test response status
 		assertSuccessfulResponse(exists);
@@ -46,9 +45,9 @@ class E621ClientTest {
 
 	@Test
 	void testGetMultiplePosts() {
-		ApiResponse<List<PostApi>> response1 = client.getPosts();
-		ApiResponse<List<PostApi>> response2 = client.getPosts(-1, 1, 100);
-		ApiResponse<List<PostApi>> response3 = client.getPosts(1, 2, 5, 100, 500, 700, 1000, 5000, 7500, 10000);
+		E621Response<List<PostApi>> response1 = client.getPosts();
+		E621Response<List<PostApi>> response2 = client.getPosts(-1, 1, 100);
+		E621Response<List<PostApi>> response3 = client.getPosts(1, 2, 5, 100, 500, 700, 1000, 5000, 7500, 10000);
 		assertSuccessfulResponse(response1);
 		assertSuccessfulResponse(response2);
 		assertSuccessfulResponse(response3);
@@ -63,9 +62,9 @@ class E621ClientTest {
 
 	@Test
 	void testGetTagById() {
-		ApiResponse<TagApi> dragon = client.getTagById(1);
-		ApiResponse<TagApi> notExists1 = client.getTagById(0);
-		ApiResponse<TagApi> notExists2 = client.getTagById(-1);
+		E621Response<TagApi> dragon = client.getTagById(1);
+		E621Response<TagApi> notExists1 = client.getTagById(0);
+		E621Response<TagApi> notExists2 = client.getTagById(-1);
 
 		assertSuccessfulResponse(dragon);
 		assertErrorResponse(notExists1);
@@ -80,9 +79,9 @@ class E621ClientTest {
 
 	@Test
 	void testGetMultipleTags() {
-		ApiResponse<List<TagApi>> response1 = client.getTagsByName();
-		ApiResponse<List<TagApi>> response2 = client.getTagsByName("ghhehehe", "adas", "male");
-		ApiResponse<List<TagApi>> response3 = client.getTagsByName("male", "female", "dragon", "pokémon");
+		E621Response<List<TagApi>> response1 = client.getTagsByName();
+		E621Response<List<TagApi>> response2 = client.getTagsByName("ghhehehe", "adas", "male");
+		E621Response<List<TagApi>> response3 = client.getTagsByName("male", "female", "dragon", "pokémon");
 		assertSuccessfulResponse(response1);
 		assertSuccessfulResponse(response2);
 		assertSuccessfulResponse(response3);
@@ -94,11 +93,11 @@ class E621ClientTest {
 
 	@Test
 	void testGetTagByName() {
-		ApiResponse<TagApi> dragon = client.getTagByName("dragon");
-		ApiResponse<TagApi> pokemon = client.getTagByName("pokémon");
-		ApiResponse<TagApi> integerTag = client.getTagByName("123");
-		ApiResponse<TagApi> nonExists = client.getTagByName("wgmwpood");
-		ApiResponse<TagApi> notExistsIntegerTag = client.getTagByName("12398252");
+		E621Response<TagApi> dragon = client.getTagByName("dragon");
+		E621Response<TagApi> pokemon = client.getTagByName("pokémon");
+		E621Response<TagApi> integerTag = client.getTagByName("123");
+		E621Response<TagApi> nonExists = client.getTagByName("wgmwpood");
+		E621Response<TagApi> notExistsIntegerTag = client.getTagByName("12398252");
 
 		assertSuccessfulResponse(dragon);
 		assertSuccessfulResponse(pokemon);
@@ -114,8 +113,8 @@ class E621ClientTest {
 
 	@Test
 	void testGetUserById() {
-		ApiResponse<FullUserApi> existingUser = client.getUserById(194340);
-		ApiResponse<FullUserApi> notExists = client.getUserById(0);
+		E621Response<FullUserApi> existingUser = client.getUserById(194340);
+		E621Response<FullUserApi> notExists = client.getUserById(0);
 		assertSuccessfulResponse(existingUser);
 		assertErrorResponse(notExists);
 		FullUserApi earlopain = existingUser.unwrap();
@@ -126,10 +125,10 @@ class E621ClientTest {
 
 	@Test
 	void testGetUserByName() {
-		ApiResponse<FullUserApi> existingUser = client.getUserByName("earlopain");
-		ApiResponse<FullUserApi> userWithIntegerName = client.getUserByName("123");
-		ApiResponse<FullUserApi> nonExistingUser = client.getUserByName("jfowjfofwf");
-		ApiResponse<FullUserApi> nonExistingUserWithIntegers = client.getUserByName("80895019751");
+		E621Response<FullUserApi> existingUser = client.getUserByName("earlopain");
+		E621Response<FullUserApi> userWithIntegerName = client.getUserByName("123");
+		E621Response<FullUserApi> nonExistingUser = client.getUserByName("jfowjfofwf");
+		E621Response<FullUserApi> nonExistingUserWithIntegers = client.getUserByName("80895019751");
 
 		assertSuccessfulResponse(existingUser);
 		assertSuccessfulResponse(userWithIntegerName);
@@ -146,8 +145,8 @@ class E621ClientTest {
 
 	@Test
 	void testGetPoolById() {
-		ApiResponse<PoolApi> existingPool = client.getPoolById(17319);
-		ApiResponse<PoolApi> nonExistantPool = client.getPoolById(-1);
+		E621Response<PoolApi> existingPool = client.getPoolById(17319);
+		E621Response<PoolApi> nonExistantPool = client.getPoolById(-1);
 
 		assertSuccessfulResponse(existingPool);
 		assertErrorResponse(nonExistantPool);
@@ -181,7 +180,7 @@ class E621ClientTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void assertSuccessfulResponse(ApiResponse r) {
+	private void assertSuccessfulResponse(E621Response r) {
 		Assertions.assertTrue(r.isSuccess());
 		Assertions.assertNull(r.getErrorType());
 		Assertions.assertNull(r.getErrorMessage());
@@ -190,7 +189,7 @@ class E621ClientTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void assertErrorResponse(ApiResponse r) {
+	private void assertErrorResponse(E621Response r) {
 		Assertions.assertFalse(r.isSuccess());
 		Assertions.assertNull(r.getErrorType());
 		Assertions.assertNotNull(r.getErrorMessage());
