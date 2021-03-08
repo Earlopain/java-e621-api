@@ -31,6 +31,10 @@ abstract class E621ClientBase {
 	@Setter
 	private String apiBase = "https://e621.net";
 
+	private long lastApiCall = 0;
+
+	private long apiCallDelay = 1000;
+
 	@Getter
 	@Setter
 	protected BinaryOperator<String> produceImageUrl = (md5, extension) -> {
@@ -54,6 +58,15 @@ abstract class E621ClientBase {
 	public void authenticate(String username, String apiKey) {
 		this.useragent = username;
 		this.apiKey = apiKey;
+	}
+
+	/**
+	 * Sets the minimum delay that must pass between api calls. E6 recommends 1
+	 * request per second max, with short bursts of 2 requests per second
+	 * @param delay pause in milliseconds
+	 */
+	public void setApiCallDelay(long delay) {
+		this.apiCallDelay = delay;
 	}
 
 	protected HttpClient getHttpClient() {
@@ -84,6 +97,12 @@ abstract class E621ClientBase {
 	}
 
 	protected <T> E621Request<T> get(String url) {
+		long diffSinceLastCall = System.currentTimeMillis() - lastApiCall;
+		if (diffSinceLastCall < apiCallDelay) {
+			Thread.sleep(diffSinceLastCall);
+		}
+		lastApiCall = System.currentTimeMillis();
+
 		LOG.info(() -> String.format("Making request for %s", url));
 		HttpRequest request = getBuilderBase().GET().uri(URI.create(apiBase + url)).build();
 		try {
