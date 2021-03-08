@@ -88,15 +88,15 @@ abstract class E621ClientBase {
 		}
 	}
 
-	protected <T extends E621ApiType> E621Request<List<T>> getList(String url) {
+	protected <T extends E621ApiType> E621Request<List<T>> getList(String url) throws InterruptedException {
 		return get(url);
 	}
 
-	protected <T extends E621ApiType> E621Request<T> getSingle(String url) {
+	protected <T extends E621ApiType> E621Request<T> getSingle(String url) throws InterruptedException {
 		return get(url);
 	}
 
-	protected <T> E621Request<T> get(String url) {
+	protected <T> E621Request<T> get(String url) throws InterruptedException {
 		long diffSinceLastCall = System.currentTimeMillis() - lastApiCall;
 		if (diffSinceLastCall < apiCallDelay) {
 			Thread.sleep(diffSinceLastCall);
@@ -109,7 +109,7 @@ abstract class E621ClientBase {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 			return E621Request.create(response);
 
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException e) {
 			return E621Request.create(ErrorType.NETWORK_REQUEST_FAILED);
 		}
 	}

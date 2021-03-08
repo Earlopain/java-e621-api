@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import net.c5h8no4na.common.assertion.Assert;
 import net.c5h8no4na.e621.api.response.FullUserApi;
 import net.c5h8no4na.e621.api.response.PoolApi;
 import net.c5h8no4na.e621.api.response.PostApi;
@@ -28,16 +29,16 @@ public class E621Client extends E621ClientBase {
 		super(useragent, username, apiKey);
 	}
 
-	public E621Response<PostApi> getPost(Integer id) {
+	public E621Response<PostApi> getPost(Integer id) throws InterruptedException {
 		E621Request<PostApi> json = getSingle(Endpoint.POSTS.getById(id));
 		return json.wrapIntoError(PostApi.class);
 	}
 
-	public E621Response<List<PostApi>> getPosts(Integer... ids) {
+	public E621Response<List<PostApi>> getPosts(Integer... ids) throws InterruptedException {
 		return getPosts(Arrays.asList(ids));
 	}
 
-	public E621Response<List<PostApi>> getPosts(List<Integer> ids) {
+	public E621Response<List<PostApi>> getPosts(List<Integer> ids) throws InterruptedException {
 		Assert.isTrue(ids.size() <= 100, "This method only supports 100 ids at once");
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
 		Map<String, String> queryParams = Map.of("tags", String.format("id:%s status:any", idString), "limit", "100");
@@ -46,21 +47,21 @@ public class E621Client extends E621ClientBase {
 		return json.wrapIntoErrorWithType(type);
 	}
 
-	public E621Response<TagApi> getTagById(Integer id) {
+	public E621Response<TagApi> getTagById(Integer id) throws InterruptedException {
 		E621Request<TagApi> json = getSingle(Endpoint.TAGS.getById(id));
 		return json.wrapIntoError(TagApi.class);
 	}
 
-	public E621Response<TagApi> getTagByName(String tag) {
+	public E621Response<TagApi> getTagByName(String tag) throws InterruptedException {
 		E621Response<List<TagApi>> json = getTagsByName(tag);
 		return extractOneFromList(json);
 	}
 
-	public E621Response<List<TagApi>> getTagsByName(String... tags) {
+	public E621Response<List<TagApi>> getTagsByName(String... tags) throws InterruptedException {
 		return getTagsByName(Arrays.asList(tags));
 	}
 
-	public E621Response<List<TagApi>> getTagsByName(List<String> tags) {
+	public E621Response<List<TagApi>> getTagsByName(List<String> tags) throws InterruptedException {
 		String tagString = String.join(",", tags);
 		Map<String, String> queryParams = Map.of("search[name]", tagString, "search[hide_empty]", "no");
 		E621Request<List<TagApi>> json = getList(Endpoint.TAGS.getWithParams(queryParams));
@@ -68,12 +69,12 @@ public class E621Client extends E621ClientBase {
 		return json.wrapIntoErrorWithType(type);
 	}
 
-	public E621Response<FullUserApi> getUserById(Integer id) {
+	public E621Response<FullUserApi> getUserById(Integer id) throws InterruptedException {
 		E621Request<FullUserApi> json = getSingle(Endpoint.USERS.getById(id));
 		return json.wrapIntoError(FullUserApi.class);
 	}
 
-	public E621Response<FullUserApi> getUserByName(String name) {
+	public E621Response<FullUserApi> getUserByName(String name) throws InterruptedException {
 		try {
 			Integer.parseInt(name);
 			// Name is numeric getting it would tread it as id
@@ -99,24 +100,22 @@ public class E621Client extends E621ClientBase {
 		}
 	}
 
-	public E621Response<PoolApi> getPoolById(Integer id) {
+	public E621Response<PoolApi> getPoolById(Integer id) throws InterruptedException {
 		E621Request<PoolApi> json = getSingle(Endpoint.POOLS.getById(id));
 		return json.wrapIntoError(PoolApi.class);
 	}
 
-	public Optional<byte[]> getFile(String md5, String extension) {
-		LOG.warning(() -> String.format("Downloading file %s.%s", md5, extension));
+	public Optional<byte[]> getFile(String md5, String extension) throws InterruptedException, IOException {
+		LOG.info(() -> String.format("Downloading file %s.%s", md5, extension));
 		String url = produceImageUrl.apply(md5, extension);
 		HttpRequest request = getBuilderBase().GET().uri(URI.create(url)).build();
-		try {
-			HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
-			if (response.statusCode() == 200) {
-				return Optional.of(response.body());
-			} else {
-				return Optional.empty();
-			}
-		} catch (IOException | InterruptedException e) {
+
+		HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
+		if (response.statusCode() == 200) {
+			return Optional.of(response.body());
+		} else {
 			return Optional.empty();
 		}
+
 	}
 }

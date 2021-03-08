@@ -21,7 +21,7 @@ class E621ClientTest {
 	}
 
 	@Test
-	void testApiResponse() {
+	void testApiResponse() throws InterruptedException {
 		E621Response<PostApi> exists = client.getPost(100);
 		E621Response<PostApi> notExists = client.getPost(1);
 		assertSuccessfulResponse(exists);
@@ -29,7 +29,7 @@ class E621ClientTest {
 	}
 
 	@Test
-	void testGetPostById() {
+	void testGetPostById() throws InterruptedException {
 		E621Response<PostApi> exists = client.getPost(100);
 		E621Response<PostApi> notExists = client.getPost(1);
 
@@ -44,7 +44,7 @@ class E621ClientTest {
 	}
 
 	@Test
-	void testGetMultiplePosts() {
+	void testGetMultiplePosts() throws InterruptedException {
 		E621Response<List<PostApi>> response1 = client.getPosts();
 		E621Response<List<PostApi>> response2 = client.getPosts(-1, 1, 100);
 		E621Response<List<PostApi>> response3 = client.getPosts(1, 2, 5, 100, 500, 700, 1000, 5000, 7500, 10000);
@@ -61,7 +61,7 @@ class E621ClientTest {
 	}
 
 	@Test
-	void testGetTagById() {
+	void testGetTagById() throws InterruptedException {
 		E621Response<TagApi> dragon = client.getTagById(1);
 		E621Response<TagApi> notExists1 = client.getTagById(0);
 		E621Response<TagApi> notExists2 = client.getTagById(-1);
@@ -78,7 +78,7 @@ class E621ClientTest {
 	}
 
 	@Test
-	void testGetMultipleTags() {
+	void testGetMultipleTags() throws InterruptedException {
 		E621Response<List<TagApi>> response1 = client.getTagsByName();
 		E621Response<List<TagApi>> response2 = client.getTagsByName("ghhehehe", "adas", "male");
 		E621Response<List<TagApi>> response3 = client.getTagsByName("male", "female", "dragon", "pokémon");
@@ -92,7 +92,7 @@ class E621ClientTest {
 	}
 
 	@Test
-	void testGetTagByName() {
+	void testGetTagByName() throws InterruptedException {
 		E621Response<TagApi> dragon = client.getTagByName("dragon");
 		E621Response<TagApi> pokemon = client.getTagByName("pokémon");
 		E621Response<TagApi> integerTag = client.getTagByName("123");
@@ -112,7 +112,7 @@ class E621ClientTest {
 	}
 
 	@Test
-	void testGetUserById() {
+	void testGetUserById() throws InterruptedException {
 		E621Response<FullUserApi> existingUser = client.getUserById(194340);
 		E621Response<FullUserApi> notExists = client.getUserById(0);
 		assertSuccessfulResponse(existingUser);
@@ -124,7 +124,7 @@ class E621ClientTest {
 	}
 
 	@Test
-	void testGetUserByName() {
+	void testGetUserByName() throws InterruptedException {
 		E621Response<FullUserApi> existingUser = client.getUserByName("earlopain");
 		E621Response<FullUserApi> userWithIntegerName = client.getUserByName("123");
 		E621Response<FullUserApi> nonExistingUser = client.getUserByName("jfowjfofwf");
@@ -144,7 +144,7 @@ class E621ClientTest {
 	}
 
 	@Test
-	void testGetPoolById() {
+	void testGetPoolById() throws InterruptedException {
 		E621Response<PoolApi> existingPool = client.getPoolById(17319);
 		E621Response<PoolApi> nonExistantPool = client.getPoolById(-1);
 
@@ -159,7 +159,7 @@ class E621ClientTest {
 	}
 
 	@Test
-	void testPostHasValues() {
+	void testPostHasValues() throws InterruptedException {
 		PostApi post = client.getPost(2597886).unwrap();
 		Assertions.assertTrue(post.getFile().getUrl().isPresent());
 		Assertions.assertTrue(post.getPreview().getUrl().isPresent());
@@ -176,7 +176,6 @@ class E621ClientTest {
 		Assertions.assertTrue(post2.getDuration().isEmpty());
 		Assertions.assertEquals(0, post2.getSample().getAlternates().size());
 		Assertions.assertEquals(169756, post2.getApproverId().get());
-
 	}
 
 	@SuppressWarnings("rawtypes")
