@@ -57,7 +57,7 @@ class E621ClientTest {
 		// Test list with deleted post
 		Assertions.assertEquals(1, response2.unwrap().size());
 		// Test large list
-		Assertions.assertEquals(5, response3.unwrap().size());
+		Assertions.assertEquals(7, response3.unwrap().size());
 	}
 
 	@Test

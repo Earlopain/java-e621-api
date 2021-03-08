@@ -38,8 +38,9 @@ public class E621Client extends E621ClientBase {
 	}
 
 	public E621Response<List<PostApi>> getPosts(List<Integer> ids) {
+		Assert.isTrue(ids.size() <= 100, "This method only supports 100 ids at once");
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
-		Map<String, String> queryParams = Map.of("tags", String.format("id:%s", idString));
+		Map<String, String> queryParams = Map.of("tags", String.format("id:%s status:any", idString), "limit", "100");
 		E621Request<List<PostApi>> json = getList(Endpoint.POSTS.getWithParams(queryParams));
 		Type type = getListType(PostApi.class);
 		return json.wrapIntoErrorWithType(type);
