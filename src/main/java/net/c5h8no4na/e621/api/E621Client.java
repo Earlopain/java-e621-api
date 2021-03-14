@@ -41,7 +41,30 @@ public class E621Client extends E621ClientBase {
 	public E621Response<List<PostApi>> getPosts(List<Integer> ids) throws InterruptedException {
 		Assert.isTrue(ids.size() <= 100, "This method only supports 100 ids at once");
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
-		Map<String, String> queryParams = Map.of("tags", String.format("id:%s status:any", idString), "limit", "100");
+		return getPostsByTags(List.of("id:" + idString, "status:any"), 100);
+	}
+
+	public E621Response<List<PostApi>> getPostsByTagsAfterId(List<String> tags, int afterId, int limit) throws InterruptedException {
+		return getPostsByTags(tags, limit, "a" + afterId);
+	}
+
+	public E621Response<List<PostApi>> getPostsByTagsBeforeId(List<String> tags, int beforeId, int limit) throws InterruptedException {
+		return getPostsByTags(tags, limit, "b" + beforeId);
+	}
+
+	public E621Response<List<PostApi>> getPostsByTags(List<String> tags, int limit) throws InterruptedException {
+		return getPostsByTags(tags, limit, 1);
+	}
+
+	public E621Response<List<PostApi>> getPostsByTags(List<String> tags, int limit, int page) throws InterruptedException {
+		Assert.isTrue(page <= 750, "Pages greater then 750 are not allowed");
+		return getPostsByTags(tags, limit, String.valueOf(page));
+	}
+
+	public E621Response<List<PostApi>> getPostsByTags(List<String> tags, int limit, String page) throws InterruptedException {
+		Assert.isTrue(tags.size() <= 40, "This method only supports 40 tags at once");
+		Assert.isTrue(tags.size() <= 320, "This method only supports a limit of 320");
+		Map<String, String> queryParams = Map.of("tags", String.join(" ", tags), "limit", String.valueOf(limit), "page", page);
 		E621Request<List<PostApi>> json = getList(Endpoint.POSTS.getWithParams(queryParams));
 		Type type = getListType(PostApi.class);
 		return json.wrapIntoErrorWithType(type);

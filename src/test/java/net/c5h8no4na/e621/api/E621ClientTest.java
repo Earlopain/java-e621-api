@@ -44,6 +44,18 @@ class E621ClientTest {
 	}
 
 	@Test
+	void testGetPostsByTags() throws InterruptedException {
+		E621Response<List<PostApi>> uploaded = client.getPostsByTags(List.of("user:earlopain", "id:<2653000", "status:any"), 320);
+		E621Response<List<PostApi>> beforeId = client.getPostsByTagsBeforeId(List.of("status:any"), 300, 320);
+
+		assertSuccessfulResponse(uploaded);
+		assertSuccessfulResponse(beforeId);
+
+		Assertions.assertEquals(209, uploaded.unwrap().size());
+		Assertions.assertEquals(274, beforeId.unwrap().size());
+	}
+
+	@Test
 	void testGetMultiplePosts() throws InterruptedException {
 		E621Response<List<PostApi>> response1 = client.getPosts();
 		E621Response<List<PostApi>> response2 = client.getPosts(-1, 1, 100);
