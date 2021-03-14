@@ -29,39 +29,41 @@ public class E621Client extends E621ClientBase {
 		super(useragent, username, apiKey);
 	}
 
-	public E621Response<PostApi> getPost(Integer id) throws InterruptedException {
+	public E621Response<PostApi> getPost(Integer id) throws InterruptedException, IOException {
 		E621Request<PostApi> json = getSingle(Endpoint.POSTS.getById(id));
 		return json.wrapIntoError(PostApi.class);
 	}
 
-	public E621Response<List<PostApi>> getPosts(Integer... ids) throws InterruptedException {
+	public E621Response<List<PostApi>> getPosts(Integer... ids) throws InterruptedException, IOException {
 		return getPosts(Arrays.asList(ids));
 	}
 
-	public E621Response<List<PostApi>> getPosts(List<Integer> ids) throws InterruptedException {
+	public E621Response<List<PostApi>> getPosts(List<Integer> ids) throws InterruptedException, IOException {
 		Assert.isTrue(ids.size() <= 100, "This method only supports 100 ids at once");
 		String idString = ids.stream().map(c -> c.toString()).collect(Collectors.joining(","));
 		return getPostsByTags(List.of("id:" + idString, "status:any"), 100);
 	}
 
-	public E621Response<List<PostApi>> getPostsByTagsAfterId(List<String> tags, int afterId, int limit) throws InterruptedException {
+	public E621Response<List<PostApi>> getPostsByTagsAfterId(List<String> tags, int afterId, int limit)
+			throws InterruptedException, IOException {
 		return getPostsByTags(tags, limit, "a" + afterId);
 	}
 
-	public E621Response<List<PostApi>> getPostsByTagsBeforeId(List<String> tags, int beforeId, int limit) throws InterruptedException {
+	public E621Response<List<PostApi>> getPostsByTagsBeforeId(List<String> tags, int beforeId, int limit)
+			throws InterruptedException, IOException {
 		return getPostsByTags(tags, limit, "b" + beforeId);
 	}
 
-	public E621Response<List<PostApi>> getPostsByTags(List<String> tags, int limit) throws InterruptedException {
+	public E621Response<List<PostApi>> getPostsByTags(List<String> tags, int limit) throws InterruptedException, IOException {
 		return getPostsByTags(tags, limit, 1);
 	}
 
-	public E621Response<List<PostApi>> getPostsByTags(List<String> tags, int limit, int page) throws InterruptedException {
+	public E621Response<List<PostApi>> getPostsByTags(List<String> tags, int limit, int page) throws InterruptedException, IOException {
 		Assert.isTrue(page <= 750, "Pages greater then 750 are not allowed");
 		return getPostsByTags(tags, limit, String.valueOf(page));
 	}
 
-	public E621Response<List<PostApi>> getPostsByTags(List<String> tags, int limit, String page) throws InterruptedException {
+	public E621Response<List<PostApi>> getPostsByTags(List<String> tags, int limit, String page) throws InterruptedException, IOException {
 		Assert.isTrue(tags.size() <= 40, "This method only supports 40 tags at once");
 		Assert.isTrue(tags.size() <= 320, "This method only supports a limit of 320");
 		Map<String, String> queryParams = Map.of("tags", String.join(" ", tags), "limit", String.valueOf(limit), "page", page);
@@ -70,21 +72,21 @@ public class E621Client extends E621ClientBase {
 		return json.wrapIntoErrorWithType(type);
 	}
 
-	public E621Response<TagApi> getTagById(Integer id) throws InterruptedException {
+	public E621Response<TagApi> getTagById(Integer id) throws InterruptedException, IOException {
 		E621Request<TagApi> json = getSingle(Endpoint.TAGS.getById(id));
 		return json.wrapIntoError(TagApi.class);
 	}
 
-	public E621Response<TagApi> getTagByName(String tag) throws InterruptedException {
+	public E621Response<TagApi> getTagByName(String tag) throws InterruptedException, IOException {
 		E621Response<List<TagApi>> json = getTagsByName(tag);
 		return extractOneFromList(json);
 	}
 
-	public E621Response<List<TagApi>> getTagsByName(String... tags) throws InterruptedException {
+	public E621Response<List<TagApi>> getTagsByName(String... tags) throws InterruptedException, IOException {
 		return getTagsByName(Arrays.asList(tags));
 	}
 
-	public E621Response<List<TagApi>> getTagsByName(List<String> tags) throws InterruptedException {
+	public E621Response<List<TagApi>> getTagsByName(List<String> tags) throws InterruptedException, IOException {
 		String tagString = String.join(",", tags);
 		Map<String, String> queryParams = Map.of("search[name]", tagString, "search[hide_empty]", "no");
 		E621Request<List<TagApi>> json = getList(Endpoint.TAGS.getWithParams(queryParams));
@@ -92,12 +94,12 @@ public class E621Client extends E621ClientBase {
 		return json.wrapIntoErrorWithType(type);
 	}
 
-	public E621Response<FullUserApi> getUserById(Integer id) throws InterruptedException {
+	public E621Response<FullUserApi> getUserById(Integer id) throws InterruptedException, IOException {
 		E621Request<FullUserApi> json = getSingle(Endpoint.USERS.getById(id));
 		return json.wrapIntoError(FullUserApi.class);
 	}
 
-	public E621Response<FullUserApi> getUserByName(String name) throws InterruptedException {
+	public E621Response<FullUserApi> getUserByName(String name) throws InterruptedException, IOException {
 		try {
 			Integer.parseInt(name);
 			// Name is numeric getting it would tread it as id
@@ -116,14 +118,13 @@ public class E621Client extends E621ClientBase {
 			} else {
 				return response.reinterpretCast();
 			}
-
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 			E621Request<FullUserApi> json = getSingle(Endpoint.USERS.getByString(name));
 			return json.wrapIntoError(FullUserApi.class);
 		}
 	}
 
-	public E621Response<PoolApi> getPoolById(Integer id) throws InterruptedException {
+	public E621Response<PoolApi> getPoolById(Integer id) throws InterruptedException, IOException {
 		E621Request<PoolApi> json = getSingle(Endpoint.POOLS.getById(id));
 		return json.wrapIntoError(PoolApi.class);
 	}
@@ -136,8 +137,10 @@ public class E621Client extends E621ClientBase {
 		HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
 		if (response.statusCode() == 200) {
 			return Optional.of(response.body());
-		} else {
+		} else if (response.statusCode() == 404) {
 			return Optional.empty();
+		} else {
+			throw new IOException("Unexpected StatusCode " + response.statusCode());
 		}
 
 	}

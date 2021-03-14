@@ -6,7 +6,6 @@ public class E621Response<T> {
 
 	private boolean success;
 	private String errorMessage;
-	private ErrorType errorType;
 	private Integer responseCode;
 	private T response;
 
@@ -26,14 +25,6 @@ public class E621Response<T> {
 
 	private void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
-	}
-
-	public ErrorType getErrorType() {
-		return errorType;
-	}
-
-	private void setErrorType(ErrorType errorType) {
-		this.errorType = errorType;
 	}
 
 	public Integer getResponseCode() {
@@ -63,7 +54,6 @@ public class E621Response<T> {
 
 		if (!request.isSuccess()) {
 			result.setSuccess(false);
-			result.setErrorType(request.getErrorType());
 			result.setErrorMessage(request.getErrorMessage());
 			return result;
 		} else {
