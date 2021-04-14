@@ -88,24 +88,35 @@ abstract class E621ClientBase {
 		}
 	}
 
-	protected <T extends E621ApiType> E621Request<List<T>> getList(String url) throws InterruptedException, IOException {
+	protected <T extends E621ApiType> E621Request<List<T>> getList(String url) throws IOException {
 		return get(url);
 	}
 
-	protected <T extends E621ApiType> E621Request<T> getSingle(String url) throws InterruptedException, IOException {
+	protected <T extends E621ApiType> E621Request<T> getSingle(String url) throws IOException {
 		return get(url);
 	}
 
-	protected <T> E621Request<T> get(String url) throws InterruptedException, IOException {
+	protected <T> E621Request<T> get(String url) throws IOException {
 		long diffSinceLastCall = System.currentTimeMillis() - lastApiCall;
 		if (diffSinceLastCall < apiCallDelay) {
-			Thread.sleep(diffSinceLastCall);
+			try {
+				Thread.sleep(diffSinceLastCall);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new RuntimeException(e);
+			}
 		}
 		lastApiCall = System.currentTimeMillis();
 
 		LOG.info(() -> String.format("Making request for %s", url));
 		HttpRequest request = getBuilderBase().GET().uri(URI.create(apiBase + url)).build();
-		HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+		HttpResponse<String> response;
+		try {
+			response = client.send(request, BodyHandlers.ofString());
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new RuntimeException(e);
+		}
 		// Code 500 should be the only error code actually returned by the server and
 		// not by cloudflare. Tread all other cloudflare errors as IOException
 		if (response.statusCode() > 500) {
